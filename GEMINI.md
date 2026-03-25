@@ -25,6 +25,8 @@ The project uses the Maven Wrapper (`mvnw`) for all build and execution tasks.
   ```bash
   ./mvnw spring-boot:run
   ```
+- **Run with Docker (Required):**
+  The project must be capable of running in both local and production environments using Docker.
 - **Run Tests:**
   ```bash
   ./mvnw test
@@ -49,6 +51,7 @@ The project uses the Maven Wrapper (`mvnw`) for all build and execution tasks.
 - **Domain/Entity Layer:** Standard JPA entities annotated with `@Entity`.
 
 ### Testing Strategy
+- **Mandatory Requirements:** The project must have tests. Every new functionality added must include unit tests.
 - **Unit Testing:** Focus on testing business logic in services using JUnit 5 and Mockito.
 - **Slicing Tests:** Use `@WebMvcTest` for controller layer testing and `@DataJpaTest` for repository layer testing.
 - **Integration Testing:** Use `@SpringBootTest` for full context integration tests.

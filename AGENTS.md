@@ -60,6 +60,8 @@ Se prefiere un diseño de **Puertos y Adaptadores**:
 2. **Contract First:** Los cambios en la API deben reflejarse primero en el archivo openapi-spec.json.  
 3. **Observability:** Todos los componentes críticos deben ser monitoreables vía **Spring Actuator**.  
 4. **Optimización:** El código debe ser compatible con la compilación nativa de **GraalVM** para reducir el footprint en el servidor Docker.
+5. **Testing Obligatorio:** El proyecto debe tener tests. Toda funcionalidad que se agregue debe incluir test unitarios.
+6. **Docker:** El proyecto debe correr tanto en local como en producción usando Docker.
 
 ## ---
 
