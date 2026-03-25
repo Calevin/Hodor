@@ -1,0 +1,25 @@
+# Local Development Environment
+# This configuration only spins up the local dependencies (PostgreSQL).
+# The Java application should be run locally (e.g., via your IDE or ./mvnw spring-boot:run)
+# and configured to connect to localhost:5432.
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: hodor_pg_local
+    environment:
+      POSTGRES_DB: hodor
+      POSTGRES_USER: hodor_user
+      POSTGRES_PASSWORD: hodor_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data_local:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U hodor_user -d hodor" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pg_data_local:

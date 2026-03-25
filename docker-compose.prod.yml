@@ -1,0 +1,75 @@
+# Production Environment
+# This configuration runs both the Hodor Application and its PostgreSQL database.
+# Caddy proxy connects automatically via the configured labels.
+
+services:
+  hodor_java_auth:
+    build:
+      context: .
+      target: runtime
+    container_name: hodor_java_auth
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - hodor_network
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/hodor_prod
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-hodor_prod}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-hodor_secret}
+      # Required environment variables defined in AGENTS.md for first admin
+      - AUTH_ADMIN_USER=${AUTH_ADMIN_USER:-admin}
+      - AUTH_ADMIN_PASS=${AUTH_ADMIN_PASS:-adminpass}
+    labels:
+      caddy: http://hodor-java-auth.calevin.com
+      caddy.reverse_proxy: "hodor_java_auth:8080"
+      caddy.reverse_proxy.header_up: "X-Forwarded-Proto https"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      # We use wget because curl is not always available in alpine images
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:17-alpine
+    container_name: hodor_pg_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hodor_prod
+      POSTGRES_USER: ${DB_USER:-hodor_prod}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-hodor_secret}
+    networks:
+      - hodor_network
+    volumes:
+      - pg_data_prod:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  hodor_network:
+    driver: bridge
+  caddy_net:
+    external: true
+
+volumes:
+  pg_data_prod:
