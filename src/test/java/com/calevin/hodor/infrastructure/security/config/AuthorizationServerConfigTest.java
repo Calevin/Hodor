@@ -18,7 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(properties = {
         "hodor.admin.username=test-admin",
-        "hodor.admin.password=test-pass"
+        "hodor.admin.password=test-pass",
+        "hodor.auth.issuer-url=https://hodor-java-auth.calevin.com"
 })
 @AutoConfigureMockMvc
 @Testcontainers
@@ -34,7 +35,7 @@ class AuthorizationServerConfigTest {
     @Test
     @DisplayName("El endpoint de JWKS debe devolver una clave RSA generada por JwksUtils")
     void testJwksEndpointReturnsKeys() throws Exception {
-        mockMvc.perform(get("/oauth2/jwks"))
+        mockMvc.perform(get("/.well-known/jwks.json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.keys").isArray())
                 .andExpect(jsonPath("$.keys").isNotEmpty())
@@ -45,13 +46,11 @@ class AuthorizationServerConfigTest {
     }
 
     @Test
-    @DisplayName("El endpoint de configuracion OIDC debe inferir correctamente el emisor a partir de las cabeceras X-Forwarded-*")
-    void testOidcDiscoveryEndpointRespectsForwardedHeaders() throws Exception {
+    @DisplayName("El endpoint de configuracion OIDC debe usar el emisor configurado")
+    void testOidcDiscoveryEndpointUsesConfiguredIssuer() throws Exception {
         String expectedIssuer = "https://hodor-java-auth.calevin.com";
 
-        mockMvc.perform(get("/.well-known/openid-configuration")
-                        .header("X-Forwarded-Host", "hodor-java-auth.calevin.com")
-                        .header("X-Forwarded-Proto", "https"))
+        mockMvc.perform(get("/.well-known/openid-configuration"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.issuer").value(expectedIssuer))
                 .andExpect(jsonPath("$.authorization_endpoint").value(containsString(expectedIssuer)))
