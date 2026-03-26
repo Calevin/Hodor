@@ -19,10 +19,10 @@ public class AdminSeeder {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${AUTH_ADMIN_USER:}")
+    @Value("${hodor.admin.username}")
     private String adminUsername;
 
-    @Value("${AUTH_ADMIN_PASS:}")
+    @Value("${hodor.admin.password}")
     private String adminPassword;
 
     @EventListener(ApplicationReadyEvent.class)

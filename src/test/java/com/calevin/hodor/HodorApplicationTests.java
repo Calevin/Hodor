@@ -7,7 +7,10 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+		"hodor.admin.username=test-admin",
+		"hodor.admin.password=test-pass"
+})
 @Testcontainers
 class HodorApplicationTests {
 
