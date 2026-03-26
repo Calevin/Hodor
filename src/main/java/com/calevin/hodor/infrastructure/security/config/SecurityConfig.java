@@ -1,0 +1,35 @@
+package com.calevin.hodor.infrastructure.security.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    @Order(2) // Prioridad baja para dejar que el Authorization Server tome las rutas de OAuth2
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/.well-known/jwks.json").permitAll() // Público para validación externa
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN") // Protegido para el Seeder/Admin
+                        .anyRequest().authenticated())
+                .formLogin(Customizer.withDefaults()) // Habilita el formulario para pruebas iniciales
+                .csrf(csrf -> csrf.disable()); // Desactivado, se usa exclusivamente tokens
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
