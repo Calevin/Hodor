@@ -12,8 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
-// Este servicio traduce las UserEntity al lenguaje que entiende Spring Security (UserDetails).
-
+/**
+ * Este servicio traduce las UserEntity al lenguaje que entiende Spring Security (UserDetails).
+ */
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {

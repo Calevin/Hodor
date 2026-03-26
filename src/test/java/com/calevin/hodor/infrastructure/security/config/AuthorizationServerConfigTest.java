@@ -1,0 +1,61 @@
+package com.calevin.hodor.infrastructure.security.config;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest(properties = {
+        "hodor.admin.username=test-admin",
+        "hodor.admin.password=test-pass"
+})
+@AutoConfigureMockMvc
+@Testcontainers
+class AuthorizationServerConfigTest {
+
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine");
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    @DisplayName("El endpoint de JWKS debe devolver una clave RSA generada por JwksUtils")
+    void testJwksEndpointReturnsKeys() throws Exception {
+        mockMvc.perform(get("/oauth2/jwks"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.keys").isArray())
+                .andExpect(jsonPath("$.keys").isNotEmpty())
+                .andExpect(jsonPath("$.keys[0].kty").value("RSA"))
+                .andExpect(jsonPath("$.keys[0].e").exists())
+                .andExpect(jsonPath("$.keys[0].n").exists())
+                .andExpect(jsonPath("$.keys[0].kid").exists());
+    }
+
+    @Test
+    @DisplayName("El endpoint de configuracion OIDC debe inferir correctamente el emisor a partir de las cabeceras X-Forwarded-*")
+    void testOidcDiscoveryEndpointRespectsForwardedHeaders() throws Exception {
+        String expectedIssuer = "https://hodor-java-auth.calevin.com";
+
+        mockMvc.perform(get("/.well-known/openid-configuration")
+                        .header("X-Forwarded-Host", "hodor-java-auth.calevin.com")
+                        .header("X-Forwarded-Proto", "https"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.issuer").value(expectedIssuer))
+                .andExpect(jsonPath("$.authorization_endpoint").value(containsString(expectedIssuer)))
+                .andExpect(jsonPath("$.token_endpoint").value(containsString(expectedIssuer)))
+                .andExpect(jsonPath("$.jwks_uri").value(containsString(expectedIssuer)));
+    }
+}
