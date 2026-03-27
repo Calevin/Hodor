@@ -27,6 +27,8 @@ services:
       # Admin Bootstrap
       - AUTH_ADMIN_USER=${AUTH_ADMIN_USER}
       - AUTH_ADMIN_PASS=${AUTH_ADMIN_PASS}
+      - AUTH_ADMIN_CLIENT_ID=${AUTH_ADMIN_CLIENT_ID}
+      - AUTH_ADMIN_CLIENT_SECRET=${AUTH_ADMIN_CLIENT_SECRET}
     labels:
       # Instrucciones para tu Caddy Reverse Proxy
       caddy: http://hodor-java-auth.calevin.com

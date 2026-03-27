@@ -49,13 +49,13 @@ public class AdminSeeder {
     public void seedAdminUser() {
         log.info("Iniciando proceso de bootstrap de Hodor...");
 
+        validateEnvironmentVariables();
+
         // 1. Verificación de existencia del Cliente de Gestión
         if (registeredClientRepository.findByClientId(adminClientId) != null) {
             log.info("Cliente de gestion '{}' ya presente. Omitiendo inicializacion.", adminClientId);
             return;
         }
-
-        validateEnvironmentVariables();
 
         // 2. Crear el Cliente de Gestión (hodor-admin-cli)
         RegisteredClient adminClient = RegisteredClient.withId(UUID.randomUUID().toString())
@@ -100,7 +100,7 @@ public class AdminSeeder {
         if (adminUsername.isBlank() || adminPassword.isBlank() || adminClientId.isBlank() || adminClientSecret.isBlank()
                 || issuerUrl.isBlank()) {
             log.error(
-                    "ERROR CRÍTICO: Las variables AUTH_ADMIN_USER y AUTH_ADMIN_PASS son obligatorias para el primer inicio.");
+                    "ERROR CRÍTICO: Las variables AUTH_ADMIN_USER, AUTH_ADMIN_PASS, AUTH_ADMIN_CLIENT_ID, AUTH_ADMIN_CLIENT_SECRET y AUTH_ISSUER_URL son obligatorias para el primer inicio.");
             log.error("El sistema no puede garantizar el acceso administrativo. Abortando...");
             System.exit(1); // Fail-fast mechanism
         }
