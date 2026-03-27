@@ -14,33 +14,34 @@ services:
         condition: service_healthy
     networks:
       - hodor_network
+      - caddy_net
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/hodor_prod
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-hodor_prod}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-hodor_secret}
-      # Required environment variables defined in AGENTS.md for first admin
-      - AUTH_ADMIN_USER=${AUTH_ADMIN_USER:-admin}
-      - AUTH_ADMIN_PASS=${AUTH_ADMIN_PASS:-adminpass}
+      # Identidad del servidor
+      - AUTH_ISSUER_URL=https://hodor-java-auth.calevin.com
+      # Estrategia para detectar HTTPS detrás de Caddy
+      - SERVER_FORWARD_HEADERS_STRATEGY=framework
+      # Admin Bootstrap
+      - AUTH_ADMIN_USER=${AUTH_ADMIN_USER}
+      - AUTH_ADMIN_PASS=${AUTH_ADMIN_PASS}
     labels:
+      # Instrucciones para tu Caddy Reverse Proxy
       caddy: http://hodor-java-auth.calevin.com
       caddy.reverse_proxy: "hodor_java_auth:8080"
       caddy.reverse_proxy.header_up: "X-Forwarded-Proto https"
     deploy:
       resources:
         limits:
-          cpus: '1.0'
           memory: 1G
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     healthcheck:
-      # We use wget because curl is not always available in alpine images
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
 
   db:
     image: postgres:17-alpine
@@ -54,11 +55,6 @@ services:
       - hodor_network
     volumes:
       - pg_data_prod:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
       interval: 10s
