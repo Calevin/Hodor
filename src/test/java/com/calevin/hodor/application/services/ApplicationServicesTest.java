@@ -1,5 +1,6 @@
 package com.calevin.hodor.application.services;
 
+import com.calevin.hodor.application.dtos.ClientRegistrationRequest;
 import com.calevin.hodor.application.dtos.UserRegistrationRequest;
 import com.calevin.hodor.infrastructure.persistence.entities.UserEntity;
 import com.calevin.hodor.infrastructure.persistence.repositories.UserRepository;
@@ -16,11 +17,13 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,10 +46,12 @@ class ApplicationServicesTest {
             String secret = "secret";
             String encodedSecret = "encoded-secret";
             String redirectUri = "http://localhost/callback";
+            Set<String> scopes = Set.of("openid", "api:read", "api:write");
 
             when(passwordEncoder.encode(secret)).thenReturn(encodedSecret);
 
-            clientManagementService.registerClient(clientId, secret, redirectUri);
+            ClientRegistrationRequest request = new ClientRegistrationRequest(clientId, secret, redirectUri, scopes);
+            clientManagementService.registerClient(request);
 
             ArgumentCaptor<RegisteredClient> captor = ArgumentCaptor.forClass(RegisteredClient.class);
             verify(registeredClientRepository).save(captor.capture());
@@ -55,6 +60,7 @@ class ApplicationServicesTest {
             assertThat(savedClient.getClientId()).isEqualTo(clientId);
             assertThat(savedClient.getClientSecret()).isEqualTo(encodedSecret);
             assertThat(savedClient.getRedirectUris()).contains(redirectUri);
+            assertThat(savedClient.getScopes()).containsAll(scopes);
         }
     }
 
@@ -76,7 +82,8 @@ class ApplicationServicesTest {
             UserRegistrationRequest request = new UserRegistrationRequest("user", "pass", "client");
             RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
                     .clientId("client")
-                    .authorizationGrantType(org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE)
+                    .authorizationGrantType(
+                            org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE)
                     .redirectUri("http://localhost/callback")
                     .build();
 
@@ -112,10 +119,11 @@ class ApplicationServicesTest {
             UserRegistrationRequest request = new UserRegistrationRequest("user", "pass", "client");
             RegisteredClient client = RegisteredClient.withId("id")
                     .clientId("client")
-                    .authorizationGrantType(org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE)
+                    .authorizationGrantType(
+                            org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE)
                     .redirectUri("http://localhost/callback")
                     .build();
-            
+
             when(clientRepository.findByClientId("client")).thenReturn(client);
             when(userRepository.findByUsername("user")).thenReturn(Optional.of(new UserEntity()));
 
