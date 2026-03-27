@@ -23,6 +23,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/.well-known/jwks.json").permitAll() // Público para validación externa
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Protegido para el Seeder/Admin
+                        .requestMatchers("/login", "/resources/**", "/static/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults()) // Habilita el formulario para pruebas iniciales
                 .csrf(csrf -> csrf.disable()); // Desactivado, se usa exclusivamente tokens
