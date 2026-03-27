@@ -29,6 +29,7 @@ services:
       - AUTH_ADMIN_PASS=${AUTH_ADMIN_PASS}
       - AUTH_ADMIN_CLIENT_ID=${AUTH_ADMIN_CLIENT_ID}
       - AUTH_ADMIN_CLIENT_SECRET=${AUTH_ADMIN_CLIENT_SECRET}
+      - SERVER_FORWARD_HEADERS_STRATEGY=framework
     labels:
       # Instrucciones para tu Caddy Reverse Proxy
       caddy: http://hodor-java-auth.calevin.com
