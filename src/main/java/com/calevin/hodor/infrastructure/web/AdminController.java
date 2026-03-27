@@ -2,10 +2,14 @@ package com.calevin.hodor.infrastructure.web;
 
 import com.calevin.hodor.application.dtos.ClientRegistrationRequest;
 import com.calevin.hodor.application.dtos.UserRegistrationRequest;
+import com.calevin.hodor.application.dtos.UserResponse;
 import com.calevin.hodor.application.services.ClientManagementService;
 import com.calevin.hodor.application.services.UserAdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,5 +34,11 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public void registerClient(@Valid @RequestBody ClientRegistrationRequest request) {
         clientManagementService.registerClient(request);
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponse> listUsers() {
+        return userAdminService.findAllUsers();
     }
 }

@@ -20,8 +20,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.when;
+import com.calevin.hodor.application.dtos.UserResponse;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @WebMvcTest(AdminController.class)
 @Import(SecurityConfig.class)
@@ -123,5 +130,40 @@ class AdminControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("Debe listar todos los usuarios si tiene rol ADMIN")
+    void listUsers_WhenAdmin_ReturnsUserList() throws Exception {
+        UserResponse user = new UserResponse(
+                UUID.randomUUID(),
+                "testuser",
+                true,
+                Set.of("ROLE_USER"),
+                List.of("blog-client")
+        );
+
+        when(userAdminService.findAllUsers()).thenReturn(List.of(user));
+
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].username").value("testuser"))
+                .andExpect(jsonPath("$[0].authorizedSystems[0]").value("blog-client"));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName("Debe devolver Forbidden (403) al listar usuarios si NO tiene rol ADMIN")
+    void listUsers_WhenNotAdmin_ReturnsForbidden() throws Exception {
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Debe redirigir al login (3xx) al listar usuarios si no esta autenticado")
+    void listUsers_WhenNotAuthenticated_ReturnsRedirect() throws Exception {
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().is3xxRedirection());
     }
 }

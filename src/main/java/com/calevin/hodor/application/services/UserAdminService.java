@@ -1,9 +1,15 @@
 package com.calevin.hodor.application.services;
 
 import com.calevin.hodor.application.dtos.UserRegistrationRequest;
+import com.calevin.hodor.application.dtos.UserResponse;
+import com.calevin.hodor.infrastructure.persistence.entities.AuthorityEntity;
 import com.calevin.hodor.infrastructure.persistence.entities.UserEntity;
 import com.calevin.hodor.infrastructure.persistence.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -52,5 +58,22 @@ public class UserAdminService {
         // Usamos el ID interno de Spring Auth Server (client.getId()) 
         // y el UUID del usuario recién creado.
         userRepository.linkUserToClient(user.getId(), client.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> findAllUsers() {
+        return userRepository.findAll().stream()
+                .map(user -> {
+                    List<String> systems = userRepository.findAuthorizedClientsByUsername(user.getUsername());
+                    return new UserResponse(
+                            user.getId(),
+                            user.getUsername(),
+                            user.isEnabled(),
+                            user.getAuthorities().stream()
+                                    .map(AuthorityEntity::getAuthority)
+                                    .collect(Collectors.toSet()),
+                            systems);
+                })
+                .toList();
     }
 }
