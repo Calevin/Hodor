@@ -9,7 +9,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest(properties = {
 		"hodor.admin.username=test-admin",
-		"hodor.admin.password=test-pass"
+		"hodor.admin.password=test-pass",
+		"hodor.admin.client-id=test-client-id",
+		"hodor.admin.client-secret=test-client-secret",
+		"hodor.auth.issuer-url=https://hodor-java-auth.calevin.com"
 })
 @Testcontainers
 class HodorApplicationTests {

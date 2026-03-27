@@ -19,7 +19,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = {
         "hodor.admin.username=test-admin",
         "hodor.admin.password=test-pass",
-        "hodor.auth.issuer-url=https://hodor-java-auth.calevin.com"
+        "hodor.auth.issuer-url=https://hodor-java-auth.calevin.com",
+        "hodor.admin.client-id=test-client-id",
+        "hodor.admin.client-secret=test-client-secret"
 })
 @AutoConfigureMockMvc
 @Testcontainers
