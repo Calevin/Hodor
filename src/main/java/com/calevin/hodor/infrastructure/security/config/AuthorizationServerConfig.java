@@ -23,8 +23,6 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import com.calevin.hodor.infrastructure.persistence.entities.KeyEntity;
 import com.calevin.hodor.infrastructure.persistence.repositories.KeyRepository;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 
 @Configuration
 @EnableWebSecurity
