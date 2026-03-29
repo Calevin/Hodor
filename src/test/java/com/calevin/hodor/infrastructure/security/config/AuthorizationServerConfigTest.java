@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = {
         "hodor.admin.username=test-admin",
@@ -34,6 +35,9 @@ class AuthorizationServerConfigTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private com.calevin.hodor.infrastructure.persistence.repositories.KeyRepository keyRepository;
+
     @Test
     @DisplayName("El endpoint de JWKS debe devolver una clave RSA generada por JwksUtils")
     void testJwksEndpointReturnsKeys() throws Exception {
@@ -45,6 +49,24 @@ class AuthorizationServerConfigTest {
                 .andExpect(jsonPath("$.keys[0].e").exists())
                 .andExpect(jsonPath("$.keys[0].n").exists())
                 .andExpect(jsonPath("$.keys[0].kid").exists());
+    }
+
+    @Test
+    @DisplayName("La llave JWKS debe persistirse en la base de datos y ser unica")
+    void testJwksKeyIsPersistedAndUnique() throws Exception {
+        // Al arrancar el test, el bean jwkSource ya debió ejecutarse y crear una llave
+        long initialCount = keyRepository.count();
+        var keys = keyRepository.findAll();
+        
+        assertThat(initialCount).isGreaterThanOrEqualTo(1L);
+        String kidInDb = keys.get(0).getKid();
+
+        // Llamamos al endpoint para asegurar que no se generan llaves nuevas por cada peticion
+        mockMvc.perform(get("/.well-known/jwks.json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.keys[0].kid").value(kidInDb));
+
+        assertThat(keyRepository.count()).isEqualTo(initialCount);
     }
 
     @Test

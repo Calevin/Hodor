@@ -1,5 +1,9 @@
 package com.calevin.hodor.infrastructure.security.config;
 
+import java.time.Instant;
+import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,12 +21,20 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
+import com.calevin.hodor.infrastructure.persistence.entities.KeyEntity;
+import com.calevin.hodor.infrastructure.persistence.repositories.KeyRepository;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class AuthorizationServerConfig {
 
         @Value("${hodor.auth.issuer-url}")
         private String issuerUrl;
+
+        private final KeyRepository keyRepository;
 
         @Bean
         @Order(1)
@@ -59,7 +71,28 @@ public class AuthorizationServerConfig {
 
         @Bean
         public com.nimbusds.jose.jwk.source.JWKSource<com.nimbusds.jose.proc.SecurityContext> jwkSource() {
-                com.nimbusds.jose.jwk.RSAKey rsaKey = JwksUtils.generateRsa();
+                com.nimbusds.jose.jwk.RSAKey rsaKey = keyRepository.findFirstByOrderByCreatedAtDesc()
+                                .map(entity -> {
+                                        try {
+                                                // Reconstruimos la llave desde el JSON guardado
+                                                return com.nimbusds.jose.jwk.RSAKey.parse(entity.getKeyData());
+                                        } catch (Exception e) {
+                                                throw new RuntimeException("Error al parsear la llave persistida", e);
+                                        }
+                                })
+                                .orElseGet(() -> {
+                                        // Si no hay llave, generamos una nueva (solo pasará la primera vez)
+                                        com.nimbusds.jose.jwk.RSAKey newKey = JwksUtils.generateRsa();
+                                        KeyEntity entity = KeyEntity.builder()
+                                                        .id(UUID.randomUUID())
+                                                        .kid(newKey.getKeyID())
+                                                        .keyData(newKey.toJSONString()) // Serializa pública y privada
+                                                        .createdAt(Instant.now())
+                                                        .build();
+                                        keyRepository.save(entity);
+                                        return newKey;
+                                });
+
                 com.nimbusds.jose.jwk.JWKSet jwkSet = new com.nimbusds.jose.jwk.JWKSet(rsaKey);
                 return new com.nimbusds.jose.jwk.source.ImmutableJWKSet<>(jwkSet);
         }
