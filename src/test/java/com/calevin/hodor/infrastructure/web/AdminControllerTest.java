@@ -34,136 +34,168 @@ import java.util.UUID;
 @Import(SecurityConfig.class)
 class AdminControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+        private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @MockitoBean
-    private UserAdminService userAdminService;
+        @MockitoBean
+        private UserAdminService userAdminService;
 
-    @MockitoBean
-    private ClientManagementService clientManagementService;
+        @MockitoBean
+        private ClientManagementService clientManagementService;
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("Debe permitir registrar usuario si tiene rol ADMIN y el payload es valido")
-    void registerUser_WhenValidPayloadAndAdmin_ReturnsCreated() throws Exception {
-        UserRegistrationRequest request = new UserRegistrationRequest("newuser", "securepass123", "blog-client");
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("Debe permitir registrar usuario si tiene rol ADMIN y el payload es valido")
+        void registerUser_WhenValidPayloadAndAdmin_ReturnsCreated() throws Exception {
+                UserRegistrationRequest request = new UserRegistrationRequest("newuser", "securepass123",
+                                "blog-client");
 
-        doNothing().when(userAdminService).registerUserForSystem(any());
+                doNothing().when(userAdminService).registerUserForSystem(any());
 
-        mockMvc.perform(post("/api/admin/users")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                mockMvc.perform(post("/api/admin/users")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated());
 
-        verify(userAdminService).registerUserForSystem(any(UserRegistrationRequest.class));
-    }
+                verify(userAdminService).registerUserForSystem(any(UserRegistrationRequest.class));
+        }
 
-    @Test
-    @WithMockUser(roles = "USER")
-    @DisplayName("Debe devolver Forbidden (403) si el usuario NO tiene el rol ADMIN")
-    void registerUser_WhenNotAdmin_ReturnsForbidden() throws Exception {
-        UserRegistrationRequest request = new UserRegistrationRequest("newuser", "securepass123", "blog-client");
+        @Test
+        @WithMockUser(roles = "USER")
+        @DisplayName("Debe devolver Forbidden (403) si el usuario NO tiene el rol ADMIN")
+        void registerUser_WhenNotAdmin_ReturnsForbidden() throws Exception {
+                UserRegistrationRequest request = new UserRegistrationRequest("newuser", "securepass123",
+                                "blog-client");
 
-        mockMvc.perform(post("/api/admin/users")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isForbidden());
-    }
+                mockMvc.perform(post("/api/admin/users")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isForbidden());
+        }
 
-    @Test
-    @DisplayName("Debe redirigir al login (3xx) si el usuario no esta autenticado")
-    void registerUser_WhenNotAuthenticated_ReturnsRedirect() throws Exception {
-        UserRegistrationRequest request = new UserRegistrationRequest("newuser", "securepass123", "blog-client");
+        @Test
+        @DisplayName("Debe redirigir al login (3xx) si el usuario no esta autenticado")
+        void registerUser_WhenNotAuthenticated_ReturnsRedirect() throws Exception {
+                UserRegistrationRequest request = new UserRegistrationRequest("newuser", "securepass123",
+                                "blog-client");
 
-        mockMvc.perform(post("/api/admin/users")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().is3xxRedirection());
-    }
+                mockMvc.perform(post("/api/admin/users")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().is3xxRedirection());
+        }
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("Debe devolver Bad Request (400) cuando hay errores de validacion en la request")
-    void registerUser_WhenInvalidPayload_ReturnsBadRequest() throws Exception {
-        // Username is too short, passing an empty target_system
-        UserRegistrationRequest request = new UserRegistrationRequest("usr", "pass", "");
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("Debe devolver Bad Request (400) cuando hay errores de validacion en la request")
+        void registerUser_WhenInvalidPayload_ReturnsBadRequest() throws Exception {
+                // Username is too short, passing an empty target_system
+                UserRegistrationRequest request = new UserRegistrationRequest("usr", "pass", "");
 
-        mockMvc.perform(post("/api/admin/users")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("Debe permitir registrar un cliente si tiene rol ADMIN y el payload es valido")
-    void registerClient_WhenValidPayloadAndAdmin_ReturnsCreated() throws Exception {
-        java.util.Set<String> scopes = java.util.Set.of("openid", "profile");
-        ClientRegistrationRequest request = new ClientRegistrationRequest("new-client", "secret123", "http://localhost/callback", scopes);
+                mockMvc.perform(post("/api/admin/users")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isBadRequest());
+        }
 
-        doNothing().when(clientManagementService).registerClient(any());
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("Debe permitir registrar un cliente si tiene rol ADMIN y el payload es valido")
+        void registerClient_WhenValidPayloadAndAdmin_ReturnsCreated() throws Exception {
+                java.util.Set<String> scopes = java.util.Set.of("openid", "profile");
+                ClientRegistrationRequest request = new ClientRegistrationRequest("new-client", "secret123",
+                                "http://localhost/callback", scopes, 15L, 7L);
 
-        mockMvc.perform(post("/api/admin/clients")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                doNothing().when(clientManagementService).registerClient(any());
 
-        verify(clientManagementService).registerClient(any(ClientRegistrationRequest.class));
-    }
+                mockMvc.perform(post("/api/admin/clients")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated());
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("Debe devolver Bad Request (400) cuando el payload de registro de cliente es invalido")
-    void registerClient_WhenInvalidPayload_ReturnsBadRequest() throws Exception {
-        // Missing secret and empty scopes
-        ClientRegistrationRequest request = new ClientRegistrationRequest("new-client", "", "http://localhost/callback", java.util.Set.of());
+                verify(clientManagementService).registerClient(any(ClientRegistrationRequest.class));
+        }
 
-        mockMvc.perform(post("/api/admin/clients")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("Debe listar todos los usuarios si tiene rol ADMIN")
-    void listUsers_WhenAdmin_ReturnsUserList() throws Exception {
-        UserResponse user = new UserResponse(
-                UUID.randomUUID(),
-                "testuser",
-                true,
-                Set.of("ROLE_USER"),
-                List.of("blog-client")
-        );
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("Debe permitir registrar un cliente sin timeouts (usar valores por defecto)")
+        void registerClient_WhenTimeoutsMissing_ReturnsCreated() throws Exception {
+                // Preparamos un request JSON sin los campos opcionales
+                String json = """
+                                {
+                                  "clientId": "no-timeout-client",
+                                  "clientSecret": "secret123",
+                                  "redirectUri": "http://localhost/callback",
+                                  "scopes": ["openid"]
+                                }
+                                """;
 
-        when(userAdminService.findAllUsers()).thenReturn(List.of(user));
+                doNothing().when(clientManagementService).registerClient(any());
 
-        mockMvc.perform(get("/api/admin/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].username").value("testuser"))
-                .andExpect(jsonPath("$[0].authorizedSystems[0]").value("blog-client"));
-    }
+                mockMvc.perform(post("/api/admin/clients")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isCreated());
 
-    @Test
-    @WithMockUser(roles = "USER")
-    @DisplayName("Debe devolver Forbidden (403) al listar usuarios si NO tiene rol ADMIN")
-    void listUsers_WhenNotAdmin_ReturnsForbidden() throws Exception {
-        mockMvc.perform(get("/api/admin/users"))
-                .andExpect(status().isForbidden());
-    }
+                verify(clientManagementService).registerClient(any(ClientRegistrationRequest.class));
+        }
 
-    @Test
-    @DisplayName("Debe redirigir al login (3xx) al listar usuarios si no esta autenticado")
-    void listUsers_WhenNotAuthenticated_ReturnsRedirect() throws Exception {
-        mockMvc.perform(get("/api/admin/users"))
-                .andExpect(status().is3xxRedirection());
-    }
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("Debe devolver Bad Request (400) cuando el payload de registro de cliente es invalido")
+        void registerClient_WhenInvalidPayload_ReturnsBadRequest() throws Exception {
+                // Missing secret and empty scopes
+                ClientRegistrationRequest request = new ClientRegistrationRequest("new-client", "",
+                                "http://localhost/callback",
+                                java.util.Set.of(), null, null);
+
+                mockMvc.perform(post("/api/admin/clients")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("Debe listar todos los usuarios si tiene rol ADMIN")
+        void listUsers_WhenAdmin_ReturnsUserList() throws Exception {
+                UserResponse user = new UserResponse(
+                                UUID.randomUUID(),
+                                "testuser",
+                                true,
+                                Set.of("ROLE_USER"),
+                                List.of("blog-client"));
+
+                when(userAdminService.findAllUsers()).thenReturn(List.of(user));
+
+                mockMvc.perform(get("/api/admin/users"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(1))
+                                .andExpect(jsonPath("$[0].username").value("testuser"))
+                                .andExpect(jsonPath("$[0].authorizedSystems[0]").value("blog-client"));
+        }
+
+        @Test
+        @WithMockUser(roles = "USER")
+        @DisplayName("Debe devolver Forbidden (403) al listar usuarios si NO tiene rol ADMIN")
+        void listUsers_WhenNotAdmin_ReturnsForbidden() throws Exception {
+                mockMvc.perform(get("/api/admin/users"))
+                                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("Debe redirigir al login (3xx) al listar usuarios si no esta autenticado")
+        void listUsers_WhenNotAuthenticated_ReturnsRedirect() throws Exception {
+                mockMvc.perform(get("/api/admin/users"))
+                                .andExpect(status().is3xxRedirection());
+        }
 }

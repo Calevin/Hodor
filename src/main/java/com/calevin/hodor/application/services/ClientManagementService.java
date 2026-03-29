@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.calevin.hodor.application.dtos.ClientRegistrationRequest;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -30,6 +31,10 @@ public class ClientManagementService {
                         throw new IllegalStateException("El cliente '" + request.clientId() + "' ya existe.");
                 }
 
+                // Definimos valores por defecto si vienen nulos
+                long accessMinutes = Objects.requireNonNullElse(request.accessTokenTimeoutMinutes(), 60L);
+                long refreshDays = Objects.requireNonNullElse(request.refreshTokenTimeoutDays(), 30L);
+
                 RegisteredClient.Builder builder = RegisteredClient.withId(UUID.randomUUID().toString())
                                 .clientId(request.clientId())
                                 .clientSecret(passwordEncoder.encode(request.clientSecret()))
@@ -43,8 +48,9 @@ public class ClientManagementService {
                                                 .requireProofKey(true)
                                                 .build())
                                 .tokenSettings(TokenSettings.builder()
-                                                .accessTokenTimeToLive(Duration.ofHours(1))
-                                                .refreshTokenTimeToLive(Duration.ofDays(30))
+                                                .accessTokenTimeToLive(Duration.ofMinutes(accessMinutes))
+                                                .refreshTokenTimeToLive(Duration.ofDays(refreshDays))
+                                                .reuseRefreshTokens(false) // Rotación obligatoria por seguridad
                                                 .build());
 
                 // Agregamos los scopes dinámicamente

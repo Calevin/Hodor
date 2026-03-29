@@ -5,8 +5,10 @@ import jakarta.validation.constraints.NotEmpty;
 import java.util.Set;
 
 public record ClientRegistrationRequest(
-        @NotBlank String clientId,
-        @NotBlank String clientSecret,
-        @NotBlank String redirectUri,
-        @NotEmpty Set<String> scopes) {
+                @NotBlank String clientId,
+                @NotBlank String clientSecret,
+                @NotBlank String redirectUri,
+                @NotEmpty Set<String> scopes,
+                Long accessTokenTimeoutMinutes,
+                Long refreshTokenTimeoutDays) {
 }
