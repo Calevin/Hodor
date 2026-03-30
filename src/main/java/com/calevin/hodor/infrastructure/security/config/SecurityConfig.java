@@ -27,7 +27,12 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults()) // Habilita el formulario para pruebas iniciales
-                .csrf(csrf -> csrf.disable()); // Desactivado, se usa exclusivamente tokens
+                .csrf(csrf -> csrf.disable())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .deleteCookies("JSESSIONID")
+                        .invalidateHttpSession(true)
+                        .logoutSuccessUrl("/login?logout")); // Desactivado, se usa exclusivamente tokens
 
         return http.build();
     }

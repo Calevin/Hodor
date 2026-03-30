@@ -14,6 +14,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
@@ -23,6 +25,7 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import com.calevin.hodor.infrastructure.persistence.entities.KeyEntity;
 import com.calevin.hodor.infrastructure.persistence.repositories.KeyRepository;
+
 
 @Configuration
 @EnableWebSecurity
@@ -44,7 +47,8 @@ public class AuthorizationServerConfig {
                                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                                 .with(authorizationServerConfigurer, (authorizationServer) -> authorizationServer
                                                 .oidc(Customizer.withDefaults()) // Habilita OpenID Connect 1.0
-                                )
+                                                // Habilita el endpoint de revocación
+                                                .tokenRevocationEndpoint(Customizer.withDefaults()))
                                 // 2. Permitir acceso público a los metadatos
                                 .authorizeHttpRequests(authorize -> authorize
                                                 .requestMatchers("/.well-known/jwks.json").permitAll()
@@ -65,6 +69,19 @@ public class AuthorizationServerConfig {
         public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
                 // Esta implementación buscará automáticamente en la tabla oauth2_registered_client
                 return new JdbcRegisteredClientRepository(jdbcTemplate);
+        }
+
+        /**
+         * Es el encargado de guardar los tokens emitidos, los códigos de autorización y el estado de las sesiones.
+         * @param jdbcTemplate
+         * @param registeredClientRepository
+         * @return
+         */
+        @Bean
+        public OAuth2AuthorizationService authorizationService(
+                        JdbcTemplate jdbcTemplate,
+                        RegisteredClientRepository registeredClientRepository) {
+                return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
         }
 
         @Bean

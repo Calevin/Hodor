@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 
-import java.util.List;
+
 
 /**
  * Este componente intercepta la creación del token. Si el token que se está emitiendo es un access_token, inyectaremos el claim authorized_systems
@@ -27,16 +27,16 @@ public class JwtTokenCustomizerConfig {
                 String username = context.getPrincipal().getName();
 
                 // 1. Recuperar los sistemas vinculados desde la DB
-                List<String> systems = userRepository.findAuthorizedClientsByUsername(username);
+                var systems = new java.util.ArrayList<>(userRepository.findAuthorizedClientsByUsername(username));
 
                 // 2. Inyectar el Custom Claim
                 context.getClaims().claims(claims -> {
                     claims.put("authorized_systems", systems);
 
                     // Limpiar y estructurar mejor las authorities
-                    var authorities = context.getPrincipal().getAuthorities().stream()
+                    var authorities = new java.util.ArrayList<>(context.getPrincipal().getAuthorities().stream()
                             .map(auth -> auth.getAuthority())
-                            .toList();
+                            .toList());
                     claims.put("roles", authorities);
                 });
             }
