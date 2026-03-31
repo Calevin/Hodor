@@ -54,7 +54,10 @@ public class AuthorizationServerConfig {
                                                 .oidc(Customizer.withDefaults()) // Habilita OpenID Connect 1.0
                                                 // Habilita el endpoint de revocación
                                                 .tokenRevocationEndpoint(Customizer.withDefaults())
-                                                .authorizationConsentService(authorizationConsentService))
+                                                .authorizationConsentService(authorizationConsentService)
+                                                // Configura la página de consentimiento personalizada
+                                                .authorizationEndpoint(authorizationEndpoint -> 
+                                                                authorizationEndpoint.consentPage("/oauth2/consent")))
                                 // 2. Permitir acceso público a los metadatos
                                 .authorizeHttpRequests(authorize -> authorize
                                                 .requestMatchers("/.well-known/jwks.json").permitAll()
