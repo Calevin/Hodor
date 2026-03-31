@@ -14,7 +14,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -25,7 +27,6 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import com.calevin.hodor.infrastructure.persistence.entities.KeyEntity;
 import com.calevin.hodor.infrastructure.persistence.repositories.KeyRepository;
-
 
 @Configuration
 @EnableWebSecurity
@@ -39,7 +40,8 @@ public class AuthorizationServerConfig {
 
         @Bean
         @Order(1)
-        public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+        public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
+                        OAuth2AuthorizationConsentService authorizationConsentService) throws Exception {
                 OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
 
                 http
@@ -48,7 +50,8 @@ public class AuthorizationServerConfig {
                                 .with(authorizationServerConfigurer, (authorizationServer) -> authorizationServer
                                                 .oidc(Customizer.withDefaults()) // Habilita OpenID Connect 1.0
                                                 // Habilita el endpoint de revocación
-                                                .tokenRevocationEndpoint(Customizer.withDefaults()))
+                                                .tokenRevocationEndpoint(Customizer.withDefaults())
+                                                .authorizationConsentService(authorizationConsentService))
                                 // 2. Permitir acceso público a los metadatos
                                 .authorizeHttpRequests(authorize -> authorize
                                                 .requestMatchers("/.well-known/jwks.json").permitAll()
@@ -82,6 +85,19 @@ public class AuthorizationServerConfig {
                         JdbcTemplate jdbcTemplate,
                         RegisteredClientRepository registeredClientRepository) {
                 return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+        }
+
+        /**
+         * Recuerda si el usuario ya le dio permiso a determinado client para acceder a determinado scope.
+         * @param jdbcTemplate
+         * @param registeredClientRepository
+         * @return
+         */
+        @Bean
+        public OAuth2AuthorizationConsentService authorizationConsentService(
+                        JdbcTemplate jdbcTemplate,
+                        RegisteredClientRepository registeredClientRepository) {
+                return new JdbcOAuth2AuthorizationConsentService(jdbcTemplate, registeredClientRepository);
         }
 
         @Bean
