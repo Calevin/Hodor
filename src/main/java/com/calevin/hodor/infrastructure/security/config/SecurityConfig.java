@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/.well-known/jwks.json").permitAll() // Público para validación externa
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Protegido para el Seeder/Admin
-                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/error").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(login -> login

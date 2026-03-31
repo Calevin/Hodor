@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{error.title}">Hodor - Error</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        .error-card { max-width: 600px; text-align: center; }
+        .error-code { font-family: 'Outfit', sans-serif; font-size: 5rem; font-weight: 700; color: var(--accent); opacity: 0.8; margin-bottom: 0; line-height: 1; }
+        .error-description { font-size: 1.2rem; color: var(--text-primary); margin-bottom: 2rem; }
+        
+        .debug-section { margin-top: 2rem; text-align: left; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; overflow: hidden; }
+        .debug-header { padding: 0.75rem 1rem; background: rgba(0,0,0,0.05); border-bottom: 1px solid var(--input-border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .debug-header h3 { margin: 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); }
+        
+        .trace-container { padding: 1rem; position: relative; }
+        .trace-content { 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 0.8rem; 
+            color: var(--text-secondary); 
+            white-space: pre-wrap; 
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+            transition: max-height 0.3s ease;
+        }
+        .trace-content.expanded {
+            display: block;
+            -webkit-line-clamp: unset;
+        }
+        
+        .btn-toggle-trace { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.8rem; padding: 0; text-decoration: underline; }
+        
+        .error-actions { margin-top: 2rem; }
+    </style>
+</head>
+<body class="solarized-theme">
+    <div class="background-decor-1"></div>
+    <div class="background-decor-2"></div>
+
+    <header class="top-nav">
+        <div class="nav-controls">
+            <button id="themeToggle" class="btn btn-icon" th:title="#{login.theme.dark}">
+                <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="login-container">
+        <div class="login-card error-card">
+            <div class="card-header">
+                <div class="error-code" th:text="${status}">500</div>
+                <h1 th:text="#{error.header}">Hodor! The door is stuck!</h1>
+                
+                <p class="error-description">
+                    <span th:if="${status == 404}" th:text="#{error.message.404}">404</span>
+                    <span th:if="${status == 500}" th:text="#{error.message.500}">500</span>
+                    <span th:if="${status != 404 and status != 500}" th:text="#{error.message.default}">Default</span>
+                </p>
+                <div th:if="${message}" class="error-detail-msg" th:text="${message}">Un mensaje técnico...</div>
+            </div>
+
+            <!-- Sección de Debug (Visible si hay trace) -->
+            <div th:if="${trace}" class="debug-section">
+                <div class="debug-header" onclick="toggleTrace()">
+                    <h3 th:text="#{error.debug_title}">Detalles técnicos</h3>
+                    <button type="button" class="btn-toggle-trace" id="traceBtnText" th:text="#{error.show_trace}">Ver traza</button>
+                </div>
+                <div class="trace-container">
+                    <div id="traceContent" class="trace-content" th:text="${trace}">
+                        El stack trace aparecerá aquí...
+                    </div>
+                </div>
+            </div>
+
+            <div class="error-actions">
+                <a th:href="@{/login}" class="btn btn-primary" th:text="#{error.back_to_home}">
+                    Volver al inicio
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script th:src="@{/js/theme.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        function toggleTrace() {
+            const content = document.getElementById('traceContent');
+            const btnText = document.getElementById('traceBtnText');
+            const showText = /*[[#{error.show_trace}]]*/ 'Show';
+            const hideText = /*[[#{error.hide_trace}]]*/ 'Hide';
+            
+            content.classList.toggle('expanded');
+            if (content.classList.contains('expanded')) {
+                btnText.innerText = hideText;
+            } else {
+                btnText.innerText = showText;
+            }
+        }
+        /*]]>*/
+    </script>
+</body>
+</html>
