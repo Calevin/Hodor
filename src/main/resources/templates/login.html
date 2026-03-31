@@ -40,7 +40,8 @@
     <main class="login-container">
         <div class="login-card">
             <div class="card-header">
-                <h1 th:text="#{login.header}">Hodor! Hold the door!</h1>
+                <h1 th:if="${clientName == null}" th:text="#{login.header}">Hodor! Hold the door!</h1>
+                <h1 th:if="${clientName != null}" th:text="#{login.header.app(${clientName})}">Hodor! Hold the door!</h1>
                 <p class="subtitle">Identity Management Service</p>
             </div>
 
