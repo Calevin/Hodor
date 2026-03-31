@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controlador de la UI para gestionar la página de inicio de sesión personalizada.
@@ -22,6 +25,7 @@ import java.util.Optional;
 @Controller
 public class LoginController {
 
+    private static final Logger log = LoggerFactory.getLogger(LoginController.class);
     private final RegisteredClientRepository registeredClientRepository;
     private final RequestCache requestCache = new HttpSessionRequestCache();
 
@@ -70,6 +74,16 @@ public class LoginController {
 
         model.addAttribute("hasError", Optional.ofNullable(error).isPresent());
         model.addAttribute("isLogout", Optional.ofNullable(logout).isPresent());
+
+        // Recuperamos el último usuario intentado de la sesión de Spring Security para mejorar UX
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            String lastUsername = (String) session.getAttribute("SPRING_SECURITY_LAST_USERNAME");
+            log.debug("Session found. lastUsername: {}", lastUsername);
+            model.addAttribute("lastUsername", lastUsername);
+        } else {
+            log.debug("No session found in LoginController");
+        }
 
         return "login";
     }

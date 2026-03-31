@@ -59,6 +59,7 @@
                 <div class="form-group">
                     <label for="username" th:text="#{login.username}">Usuario</label>
                     <input type="text" id="username" name="username" required 
+                           th:value="${lastUsername}"
                            th:placeholder="#{login.username}" autofocus>
                 </div>
                 

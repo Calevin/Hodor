@@ -29,6 +29,11 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .formLogin(login -> login
                         .loginPage("/login")
+                        .failureHandler((request, response, exception) -> {
+                            String username = request.getParameter("username");
+                            request.getSession().setAttribute("SPRING_SECURITY_LAST_USERNAME", username);
+                            response.sendRedirect("/login?error");
+                        })
                         .permitAll()) // Habilita el formulario personalizado
                 .csrf(csrf -> csrf.disable())
                 .logout(logout -> logout
