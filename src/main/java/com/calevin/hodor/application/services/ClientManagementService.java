@@ -42,8 +42,13 @@ public class ClientManagementService {
                                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                                .redirectUri(request.redirectUri())
-                                .clientSettings(ClientSettings.builder()
+                                .redirectUri(request.redirectUri());
+
+                if (request.postLogoutRedirectUri() != null) {
+                        builder.postLogoutRedirectUri(request.postLogoutRedirectUri());
+                }
+
+                builder.clientSettings(ClientSettings.builder()
                                                 .requireAuthorizationConsent(true)
                                                 .requireProofKey(true)
                                                 .build())

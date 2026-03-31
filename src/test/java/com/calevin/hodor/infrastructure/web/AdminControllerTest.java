@@ -45,6 +45,9 @@ class AdminControllerTest {
         @MockitoBean
         private ClientManagementService clientManagementService;
 
+        @MockitoBean
+        private org.springframework.security.core.session.SessionRegistry sessionRegistry;
+
         @Test
         @WithMockUser(roles = "ADMIN")
         @DisplayName("Debe permitir registrar usuario si tiene rol ADMIN y el payload es valido")
@@ -110,7 +113,7 @@ class AdminControllerTest {
         void registerClient_WhenValidPayloadAndAdmin_ReturnsCreated() throws Exception {
                 java.util.Set<String> scopes = java.util.Set.of("openid", "profile");
                 ClientRegistrationRequest request = new ClientRegistrationRequest("new-client", "secret123",
-                                "http://localhost/callback", scopes, 15L, 7L);
+                                "http://localhost/callback", "http://localhost/logout", scopes, 15L, 7L);
 
                 doNothing().when(clientManagementService).registerClient(any());
 
@@ -154,7 +157,7 @@ class AdminControllerTest {
         void registerClient_WhenInvalidPayload_ReturnsBadRequest() throws Exception {
                 // Missing secret and empty scopes
                 ClientRegistrationRequest request = new ClientRegistrationRequest("new-client", "",
-                                "http://localhost/callback",
+                                "http://localhost/callback", null,
                                 java.util.Set.of(), null, null);
 
                 mockMvc.perform(post("/api/admin/clients")

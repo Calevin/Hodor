@@ -24,6 +24,8 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 
 import com.calevin.hodor.infrastructure.persistence.entities.KeyEntity;
 import com.calevin.hodor.infrastructure.persistence.repositories.KeyRepository;
@@ -132,10 +134,19 @@ public class AuthorizationServerConfig {
         @Bean
         public AuthorizationServerSettings authorizationServerSettings() {
                 // Define el issuer (quién emite el token). 
-                // En tu laptop es localhost, en el servidor será tu dominio.
                 return AuthorizationServerSettings.builder()
                                 .issuer(issuerUrl)
                                 .jwkSetEndpoint("/.well-known/jwks.json")
+                                .oidcLogoutEndpoint("/connect/logout") // Explícito
                                 .build();
+        }
+
+        /**
+         * SessionRegistry compartido para que el endpoint de Logout de OIDC
+         * pueda invalidar correctamente las sesiones del usuario.
+         */
+        @Bean
+        public SessionRegistry sessionRegistry() {
+                return new SessionRegistryImpl();
         }
 }

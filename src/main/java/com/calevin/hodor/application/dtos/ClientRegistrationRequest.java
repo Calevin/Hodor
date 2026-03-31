@@ -8,6 +8,7 @@ public record ClientRegistrationRequest(
                 @NotBlank String clientId,
                 @NotBlank String clientSecret,
                 @NotBlank String redirectUri,
+                String postLogoutRedirectUri,
                 @NotEmpty Set<String> scopes,
                 Long accessTokenTimeoutMinutes,
                 Long refreshTokenTimeoutDays) {

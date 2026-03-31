@@ -53,6 +53,7 @@ class ApplicationServicesTest {
                         when(passwordEncoder.encode(secret)).thenReturn(encodedSecret);
 
                         ClientRegistrationRequest request = new ClientRegistrationRequest(clientId, secret, redirectUri,
+                                        "http://localhost/logout-callback",
                                         scopes,
                                         accessTokenTimeoutMinutes, refreshTokenTimeoutDays);
                         clientManagementService.registerClient(request);
@@ -64,6 +65,7 @@ class ApplicationServicesTest {
                         assertThat(savedClient.getClientId()).isEqualTo(clientId);
                         assertThat(savedClient.getClientSecret()).isEqualTo(encodedSecret);
                         assertThat(savedClient.getRedirectUris()).contains(redirectUri);
+                        assertThat(savedClient.getPostLogoutRedirectUris()).contains("http://localhost/logout-callback");
                         assertThat(savedClient.getScopes()).containsAll(scopes);
 
                         // Validar que los timeouts se guardaron correctamente
@@ -83,7 +85,7 @@ class ApplicationServicesTest {
 
                         // Request con timeouts nulos
                         ClientRegistrationRequest request = new ClientRegistrationRequest(clientId, secret, redirectUri,
-                                        scopes, null, null);
+                                        null, scopes, null, null);
 
                         clientManagementService.registerClient(request);
 

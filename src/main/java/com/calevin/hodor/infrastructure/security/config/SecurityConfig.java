@@ -18,7 +18,8 @@ public class SecurityConfig {
 
     @Bean
     @Order(2) // Prioridad baja para dejar que el Authorization Server tome las rutas de OAuth2
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, 
+            org.springframework.security.core.session.SessionRegistry sessionRegistry) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/.well-known/jwks.json").permitAll() // Público para validación externa
@@ -32,7 +33,10 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .deleteCookies("JSESSIONID")
                         .invalidateHttpSession(true)
-                        .logoutSuccessUrl("/login?logout")); // Desactivado, se usa exclusivamente tokens
+                        .logoutSuccessUrl("/login?logout"))
+                .sessionManagement(session -> session
+                        .maximumSessions(10) // Opcional, pero obliga al uso de SessionRegistry
+                        .sessionRegistry(sessionRegistry));
 
         return http.build();
     }
