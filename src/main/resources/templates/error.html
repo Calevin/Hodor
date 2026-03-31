@@ -8,6 +8,33 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        // Aplicar el tema inmediatamente para evitar parpadeo blanco
+        (function() {
+            const savedTheme = localStorage.getItem('hodor-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+
+        function toggleTrace() {
+            const shortContent = document.getElementById('traceContent');
+            const fullContent = document.getElementById('fullTrace');
+            const btnText = document.getElementById('traceBtnText');
+            
+            const isShowingFull = (fullContent.style.display === 'block');
+            
+            if (isShowingFull) {
+                fullContent.style.display = 'none';
+                shortContent.style.display = 'block';
+                btnText.innerText = btnText.getAttribute('data-show');
+            } else {
+                fullContent.style.display = 'block';
+                shortContent.style.display = 'none';
+                btnText.innerText = btnText.getAttribute('data-hide');
+            }
+        }
+    </script>
+
     <style>
         .error-card { max-width: 600px; text-align: center; }
         .error-code { font-family: 'Outfit', sans-serif; font-size: 5rem; font-weight: 700; color: var(--accent); opacity: 0.8; margin-bottom: 0; line-height: 1; }
@@ -18,24 +45,15 @@
         .debug-header h3 { margin: 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); }
         
         .trace-container { padding: 1rem; position: relative; }
-        .trace-content { 
+        .trace-content, #fullTrace { 
             font-family: 'Courier New', Courier, monospace; 
             font-size: 0.8rem; 
             color: var(--text-secondary); 
             white-space: pre-wrap; 
             overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 5;
-            -webkit-box-orient: vertical;
-            transition: max-height 0.3s ease;
-        }
-        .trace-content.expanded {
-            display: block;
-            -webkit-line-clamp: unset;
         }
         
         .btn-toggle-trace { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.8rem; padding: 0; text-decoration: underline; }
-        
         .error-actions { margin-top: 2rem; }
     </style>
 </head>
@@ -67,16 +85,23 @@
                 <div th:if="${message}" class="error-detail-msg" th:text="${message}">Un mensaje técnico...</div>
             </div>
 
-            <!-- Sección de Debug (Visible si hay trace) -->
             <div th:if="${trace}" class="debug-section">
                 <div class="debug-header" onclick="toggleTrace()">
                     <h3 th:text="#{error.debug_title}">Detalles técnicos</h3>
-                    <button type="button" class="btn-toggle-trace" id="traceBtnText" th:text="#{error.show_trace}">Ver traza</button>
+                    <button type="button" class="btn-toggle-trace" id="traceBtnText" 
+                            th:text="#{error.show_trace}"
+                            th:data-show="#{error.show_trace}"
+                            th:data-hide="#{error.hide_trace}">
+                        Ver traza completa
+                    </button>
                 </div>
                 <div class="trace-container">
-                    <div id="traceContent" class="trace-content" th:text="${trace}">
-                        El stack trace aparecerá aquí...
+                    <!-- Truncado a 5 líneas con Thymeleaf. Usamos substring si es muy largo como red de seguridad -->
+                    <div id="traceContent" class="trace-content" 
+                         th:text="${#strings.abbreviate(trace, 400)}">
+                        Traza parcial...
                     </div>
+                    <pre id="fullTrace" style="display:none;" th:text="${trace}">Traza completa...</pre>
                 </div>
             </div>
 
@@ -89,22 +114,6 @@
     </main>
 
     <script th:src="@{/js/theme.js}"></script>
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        function toggleTrace() {
-            const content = document.getElementById('traceContent');
-            const btnText = document.getElementById('traceBtnText');
-            const showText = /*[[#{error.show_trace}]]*/ 'Show';
-            const hideText = /*[[#{error.hide_trace}]]*/ 'Hide';
-            
-            content.classList.toggle('expanded');
-            if (content.classList.contains('expanded')) {
-                btnText.innerText = hideText;
-            } else {
-                btnText.innerText = showText;
-            }
-        }
-        /*]]>*/
-    </script>
 </body>
 </html>
+ml>
