@@ -30,6 +30,7 @@ import com.calevin.hodor.infrastructure.persistence.repositories.KeyRepository;
 
 @Configuration
 @EnableWebSecurity
+@org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession
 @RequiredArgsConstructor
 public class AuthorizationServerConfig {
 

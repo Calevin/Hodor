@@ -13,6 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +38,9 @@ class AuthorizationServerConfigTest {
 
     @Autowired
     private com.calevin.hodor.infrastructure.persistence.repositories.KeyRepository keyRepository;
+
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     @Test
     @DisplayName("El endpoint de JWKS debe devolver una clave RSA generada por JwksUtils")
@@ -80,5 +84,20 @@ class AuthorizationServerConfigTest {
                 .andExpect(jsonPath("$.authorization_endpoint").value(containsString(expectedIssuer)))
                 .andExpect(jsonPath("$.token_endpoint").value(containsString(expectedIssuer)))
                 .andExpect(jsonPath("$.jwks_uri").value(containsString(expectedIssuer)));
+    }
+    @Test
+    @DisplayName("Debe persistir automaticamente la sesion en la base de datos al realizar un intento de login")
+    void testSessionIsPersistedInDatabase() throws Exception {
+        // 1. Contar sesiones iniciales
+        long initialCount = jdbcTemplate.queryForObject("SELECT count(*) FROM SPRING_SESSION", Long.class);
+
+        // 2. Realizar un intento de login (esto genera sesión para guardar el error o el contexto)
+        mockMvc.perform(post("/login").param("username", "test").param("password", "test"))
+                .andExpect(status().is3xxRedirection());
+
+        // 3. Verificar que el contador aumentó
+        long finalCount = jdbcTemplate.queryForObject("SELECT count(*) FROM SPRING_SESSION", Long.class);
+
+        assertThat(finalCount).isGreaterThan(initialCount);
     }
 }
