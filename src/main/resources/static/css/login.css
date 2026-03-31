@@ -1,0 +1,287 @@
+/*
+ * Hodor Login Styles - Solarized Palette (Light & Dark Support)
+ * 
+ * @author Hodor Agent
+ */
+
+:root {
+    /* Solarized Palette Constants */
+    --base03: #002b36;
+    --base02: #073642;
+    --base01: #586e75;
+    --base00: #657b83;
+    --base0: #839496;
+    --base1: #93a1a1;
+    --base2: #eee8d5;
+    --base3: #fdf6e3;
+    --yellow: #b58900;
+    --orange: #cb4b16;
+    --red: #dc322f;
+    --magenta: #d33682;
+    --violet: #6c71c4;
+    --blue: #268bd2;
+    --cyan: #2aa198;
+    --green: #859900;
+
+    /* Semantic Mappings - Initialized for Light Theme (Solarized Light) */
+    --bg-color: var(--base3);
+    --bg-card: var(--base2);
+    --text-primary: var(--base01);
+    --text-secondary: var(--base00);
+    --accent: var(--blue);
+    --error-bg: var(--red);
+    --input-bg: var(--base3);
+    --input-border: var(--base1);
+    --shadow: rgba(0, 0, 0, 0.1);
+    --decor-1: var(--green);
+    --decor-2: var(--violet);
+}
+
+/* Dark Mode Overrides (Solarized Dark) */
+[data-theme='dark'] {
+    --bg-color: var(--base03);
+    --bg-card: var(--base02);
+    --text-primary: var(--base1);
+    --text-secondary: var(--base0);
+    --accent: var(--blue);
+    --error-bg: var(--red);
+    --input-bg: var(--base03);
+    --input-border: var(--base01);
+    --shadow: rgba(0, 0, 0, 0.4);
+    --decor-1: var(--cyan);
+    --decor-2: var(--magenta);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Background Decorations */
+.background-decor-1, .background-decor-2 {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    z-index: -1;
+}
+
+.background-decor-1 {
+    top: -50px;
+    left: -50px;
+    background-color: var(--decor-1);
+}
+
+.background-decor-2 {
+    bottom: -50px;
+    right: -50px;
+    background-color: var(--decor-2);
+}
+
+/* Navigation / Controls */
+.top-nav {
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.nav-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Buttons and Inputs */
+.btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary {
+    background-color: var(--accent);
+    color: white;
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.8rem;
+    margin-top: 1rem;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--input-border);
+}
+
+.btn-icon {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+}
+
+.btn-icon:hover {
+    background-color: var(--bg-card);
+}
+
+/* Dropdown Language */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--bg-card);
+    min-width: 140px;
+    box-shadow: 0px 8px 16px 0px var(--shadow);
+    z-index: 10;
+    border-radius: 8px;
+    border: 1px solid var(--input-border);
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: var(--text-primary);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9rem;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--bg-color);
+}
+
+/* Login Container/Card */
+.login-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.login-card {
+    background-color: var(--bg-card);
+    width: 100%;
+    max-width: 440px;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px var(--shadow);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.2rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(38, 139, 210, 0.2);
+}
+
+/* Alerts */
+.alert {
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.alert-error {
+    background-color: var(--red);
+    color: white;
+}
+
+.alert-success {
+    background-color: var(--green);
+    color: white;
+}
+
+.footer {
+    padding: 2rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Responsiveness */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 1.5rem;
+    }
+}

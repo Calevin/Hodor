@@ -3,7 +3,7 @@ package com.calevin.hodor.infrastructure.security.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,16 +24,20 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/.well-known/jwks.json").permitAll() // Público para validación externa
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Protegido para el Seeder/Admin
-                        .requestMatchers("/login", "/resources/**", "/static/**").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults()) // Habilita el formulario para pruebas iniciales
+                .formLogin(login -> login
+                        .loginPage("/login")
+                        .permitAll()) // Habilita el formulario personalizado
                 .csrf(csrf -> csrf.disable())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .deleteCookies("JSESSIONID")
                         .invalidateHttpSession(true)
-                        .logoutSuccessUrl("/login?logout"))
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.sendRedirect("/login?logout");
+                        }))
                 .sessionManagement(session -> session
                         .maximumSessions(10) // Opcional, pero obliga al uso de SessionRegistry
                         .sessionRegistry(sessionRegistry));

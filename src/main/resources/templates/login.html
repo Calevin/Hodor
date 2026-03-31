@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{login.title}">Hodor - Login</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body class="solarized-theme">
+    <div class="background-decor-1"></div>
+    <div class="background-decor-2"></div>
+    
+    <header class="top-nav">
+        <div class="nav-controls">
+            <!-- Selector de Idioma -->
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button">
+                    <span th:text="#{login.lang.es}">Español</span>
+                </button>
+                <div class="dropdown-content">
+                    <a th:href="@{/login(lang='es')}" th:text="#{login.lang.es}">Español</a>
+                    <a th:href="@{/login(lang='en')}" th:text="#{login.lang.en}">English</a>
+                </div>
+            </div>
+            
+            <!-- Botón de Tema -->
+            <button id="themeToggle" class="btn btn-icon" th:title="#{login.theme.dark}">
+                <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Icono Luna (Modo oscuro por defecto si no hay preferencia) -->
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="login-container">
+        <div class="login-card">
+            <div class="card-header">
+                <h1 th:text="#{login.header}">Hodor! Hold the door!</h1>
+                <p class="subtitle">Identity Management Service</p>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${hasError}" class="alert alert-error" role="alert">
+                <p th:text="#{login.error}">Error!</p>
+            </div>
+            
+            <div th:if="${isLogout}" class="alert alert-success" role="alert">
+                <p th:text="#{login.logout}">Logout!</p>
+            </div>
+
+            <!-- Formulario de Login nativo de Spring Security -->
+            <form th:action="@{/login}" method="post" class="login-form">
+                <div class="form-group">
+                    <label for="username" th:text="#{login.username}">Usuario</label>
+                    <input type="text" id="username" name="username" required 
+                           th:placeholder="#{login.username}" autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" th:text="#{login.password}">Contraseña</label>
+                    <input type="password" id="password" name="password" required 
+                           th:placeholder="#{login.password}">
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary" th:text="#{login.button}">
+                        Ingresar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Hodor Identity Provider. Powered by Spring Boot 4 & Java 25.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>
