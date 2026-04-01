@@ -9,5 +9,5 @@ public record UserResponse(
         String username,
         boolean enabled,
         Set<String> authorities,
-        List<String> authorizedSystems) {
+        List<AuthorizedSystemResponse> authorizedSystems) {
 }

@@ -1,6 +1,7 @@
 package com.calevin.hodor.infrastructure.web;
 
 import com.calevin.hodor.application.dtos.ClientRegistrationRequest;
+import com.calevin.hodor.application.dtos.RoleAssignmentRequest;
 import com.calevin.hodor.application.dtos.UserRegistrationRequest;
 import com.calevin.hodor.application.dtos.UserResponse;
 import com.calevin.hodor.application.services.ClientManagementService;
@@ -9,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,5 +42,12 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> listUsers() {
         return userAdminService.findAllUsers();
+    }
+
+    @PostMapping("/users/{userId}/roles")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
+    public void assignClientRole(@PathVariable UUID userId, @Valid @RequestBody RoleAssignmentRequest request) {
+        userAdminService.assignRoleToUserForClient(userId, request);
     }
 }

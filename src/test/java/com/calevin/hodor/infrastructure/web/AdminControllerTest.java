@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.Mockito.when;
+import com.calevin.hodor.application.dtos.AuthorizedSystemResponse;
 import com.calevin.hodor.application.dtos.UserResponse;
 import java.util.List;
 import java.util.Set;
@@ -176,7 +177,7 @@ class AdminControllerTest {
                                 "testuser",
                                 true,
                                 Set.of("ROLE_USER"),
-                                List.of("blog-client"));
+                                List.of(new AuthorizedSystemResponse("blog-client", List.of("ROLE_AUTHOR"))));
 
                 when(userAdminService.findAllUsers()).thenReturn(List.of(user));
 
@@ -184,7 +185,8 @@ class AdminControllerTest {
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.length()").value(1))
                                 .andExpect(jsonPath("$[0].username").value("testuser"))
-                                .andExpect(jsonPath("$[0].authorizedSystems[0]").value("blog-client"));
+                                .andExpect(jsonPath("$[0].authorizedSystems[0].clientId").value("blog-client"))
+                                .andExpect(jsonPath("$[0].authorizedSystems[0].roles[0]").value("ROLE_AUTHOR"));
         }
 
         @Test

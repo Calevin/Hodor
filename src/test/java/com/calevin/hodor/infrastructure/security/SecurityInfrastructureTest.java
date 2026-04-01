@@ -2,6 +2,7 @@ package com.calevin.hodor.infrastructure.security;
 
 import com.calevin.hodor.infrastructure.persistence.entities.AuthorityEntity;
 import com.calevin.hodor.infrastructure.persistence.entities.UserEntity;
+import com.calevin.hodor.infrastructure.persistence.repositories.UserClientRoleRepository;
 import com.calevin.hodor.infrastructure.persistence.repositories.UserRepository;
 import com.calevin.hodor.infrastructure.security.config.JwtTokenCustomizerConfig;
 import org.junit.jupiter.api.DisplayName;
@@ -74,33 +75,44 @@ class SecurityInfrastructureTest {
     class JwtTokenCustomizerConfigTests {
         @Mock
         private UserRepository userRepository;
+        @Mock
+        private UserClientRoleRepository userClientRoleRepository;
         
         @Test
         @DisplayName("Debe inyectar claims adicionales en el Access Token")
         void jwtTokenCustomizer_AddsCustomClaims() {
-            JwtTokenCustomizerConfig config = new JwtTokenCustomizerConfig(userRepository);
+            JwtTokenCustomizerConfig config = new JwtTokenCustomizerConfig(userRepository, userClientRoleRepository);
             JwtEncodingContext context = mock(JwtEncodingContext.class);
+            org.springframework.security.oauth2.server.authorization.client.RegisteredClient registeredClient = 
+                mock(org.springframework.security.oauth2.server.authorization.client.RegisteredClient.class);
             JwtClaimsSet.Builder claimBuilder = JwtClaimsSet.builder();
 
             when(context.getTokenType()).thenReturn(OAuth2TokenType.ACCESS_TOKEN);
             when(context.getClaims()).thenReturn(claimBuilder);
+            when(context.getRegisteredClient()).thenReturn(registeredClient);
+            when(registeredClient.getClientId()).thenReturn("test-client");
             
             UsernamePasswordAuthenticationToken principal = new UsernamePasswordAuthenticationToken(
                 "user", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
             when(context.getPrincipal()).thenReturn(principal);
             when(userRepository.findAuthorizedClientsByUsername("user")).thenReturn(List.of("blog", "api"));
+            when(userClientRoleRepository.findRolesByUsernameAndClientId("user", "test-client"))
+                .thenReturn(List.of("ROLE_SPECIFIC"));
 
             config.jwtTokenCustomizer().customize(context);
 
             JwtClaimsSet finalClaims = claimBuilder.build();
             assertThat(finalClaims.getClaims()).containsEntry("authorized_systems", List.of("blog", "api"));
-            assertThat(finalClaims.getClaims()).containsEntry("roles", List.of("ROLE_ADMIN"));
+            assertThat(finalClaims.getClaims().get("roles"))
+                .isInstanceOf(List.class)
+                .asInstanceOf(org.assertj.core.api.InstanceOfAssertFactories.LIST)
+                .containsExactlyInAnyOrder("ROLE_ADMIN", "ROLE_SPECIFIC");
         }
 
         @Test
         @DisplayName("No debe añadir claims si no es un Access Token")
         void jwtTokenCustomizer_DoesNothingForNonAccessToken() {
-            JwtTokenCustomizerConfig config = new JwtTokenCustomizerConfig(userRepository);
+            JwtTokenCustomizerConfig config = new JwtTokenCustomizerConfig(userRepository, userClientRoleRepository);
             JwtEncodingContext context = mock(JwtEncodingContext.class);
 
             when(context.getTokenType()).thenReturn(new OAuth2TokenType("other"));
