@@ -1,73 +1,52 @@
-# ---
+# Protocolo Operativo: seb-harness (SDD + Verificación Determinista)
 
-**🛡️ Hodor: Agent Context & Guidelines**
+Eres un agente de ingeniería de software que opera dentro de **`seb-harness`**, un arnés de Desarrollo Dirigido por Especificaciones (SDD) y Evaluación Determinista. Toda acción que ejecutes está sujeta a auditoría en `.seb/seb-audit.db` y a las reglas de este documento.
 
-Este documento define las reglas de arquitectura, estándares técnicos y restricciones para el desarrollo del servicio **Hodor (Java-Auth)**. Cualquier sugerencia de código o cambio estructural debe alinearse con estos principios.
+## 1. Fuentes de Verdad y Contexto Obligatorio
 
-## **🎯 Misión del Proyecto**
+Antes de proponer, planificar o modificar cualquier archivo, respeta esta jerarquía estricta:
 
-Hodor es un **Identity Provider (IdP)** centralizado, desacoplado y basado en estándares (OAuth2/OIDC). Su propósito es gestionar la identidad de un ecosistema personal (Blog, APIs, etc.) de forma segura mediante firmas asimétricas.
+1. **`docs/constitution.md`**: Ley suprema e innegociable del proyecto (arquitectura, stack, reglas de dominio y estilo). Si no existe y el proyecto ya tiene código, sugiere ejecutar el skill `seb-iniciador`.
+2. **`MEMORY.md`**: Registro histórico de callejones sin salida, limitaciones técnicas descubiertas, riesgos conocidos y enfoques descartados. **Nunca** propongas ni reintentes una solución documentada como fallida en `MEMORY.md`.
+3. **`specs/<NNN>_<tarea>_spec.md`**: Define el **QUÉ** y el **POR QUÉ** en notación EARS. Es inmutable durante la implementación.
+4. **`specs/<NNN>_<tarea>_plan.md` y `specs/<NNN>_<tarea>_verificador.md`**: Definen el **CÓMO** técnico y el contrato de validación programática.
 
-## ---
+## 2. Flujo de Trabajo SDD y Skills del Harness
 
-**🛠️ Stack Tecnológico (Core 2026\)**
+El desarrollo en este repositorio sigue una máquina de estados estricta gobernada por 5 skills ubicados en `.agents/skills/`:
 
-| Componente | Tecnología | Versión / Detalle |
-| :---- | :---- | :---- |
-| **Runtime** | **Java 25** | Uso mandatorio de Virtual Threads y Pattern Matching. |
-| **Framework** | **Spring Boot 4.0.x** | Basado en Spring Framework 6.2+. |
-| **Seguridad** | **Spring Auth Server** | Implementación nativa de OAuth2 y JWKS. |
-| **Persistencia** | **PostgreSQL 17+** | Acceso vía Spring Data JPA. |
-| **Migraciones** | **Flyway** | Prohibido el uso de hibernate.ddl-auto. |
-| **Build Tool** | **Maven** | Soporte para GraalVM Native Image. |
+- **Fase 0 — Constitución (`seb-iniciador`)**: Analiza un proyecto existente y genera `docs/constitution.md` (Secciones A-F) y la base de `MEMORY.md`. Se ejecuta una vez por proyecto.
+- **Fase 1 — Especificación (`seb-especificador`)**: Transforma una petición en prosa, Jira o GitHub Issue en `specs/<NNN>_<tarea>_spec.md` usando sintaxis EARS e identificadores `RF-XX`.
+- **Fase 2 — Clarificación (`seb-clarificador`)**: Audita `specs/<NNN>_<tarea>_spec.md` buscando vacíos lógicos, contradicciones o falta de testabilidad. Formula preguntas al humano y actualiza la spec hasta eliminar toda etiqueta `[NECESITA ACLARACIÓN]`.
+- **Fase 3 — Planificación (`seb-planificador`)**: A partir de una spec clarificada, genera `specs/<NNN>_<tarea>_plan.md` y `specs/<NNN>_<tarea>_verificador.md`. **Bloqueo duro**: Prohibido generar el plan si algún requisito carece de verificación programática (test, linter, compilación).
+- **Fase 4 — Implementación (Agente Constructor)**: Escribe el código y los tests siguiendo exactamente `specs/<NNN>_<tarea>_plan.md`.
+- **Fase 5 — Verificación (`seb-verificador`)**: Ejecuta `.seb/bin/seb verify <tarea>`, evalúa de forma determinista los comandos de `specs/<NNN>_<tarea>_verificador.md` y emite el informe de cobertura (`[PASA]` / `[FALLA]`).
 
-## ---
+## 3. Principio de Menor Privilegio (Guardarraíles por Fase)
 
-**🏗️ Principios de Arquitectura**
+Tienes terminantemente prohibido violar los permisos de tu rol activo:
 
-### **1\. Desacoplamiento Asimétrico (RS256)**
+| Rol / Skill Activo  | Lectura Permitida                              | Escritura Permitida                                                                                          | Ejecución de Comandos                   |
+| :------------------ | :--------------------------------------------- | :----------------------------------------------------------------------------------------------------------- | :-------------------------------------- |
+| `seb-iniciador`     | Configs de proyecto, estructura de directorios | `docs/constitution.md`, `MEMORY.md`, `AGENTS.md`                                                             | Solo inspección pasiva y `.seb/bin/seb` |
+| `seb-especificador` | `docs/constitution.md`, `MEMORY.md`, `specs/`  | `specs/<NNN>_<tarea>_spec.md`                                                                                | `.seb/bin/seb spec-next <tarea>`        |
+| `seb-clarificador`  | Todo el repositorio (solo lectura)             | `specs/<NNN>_<tarea>_spec.md`, `MEMORY.md`                                                                   | `.seb/bin/seb status`                   |
+| `seb-planificador`  | Todo el repositorio (solo lectura)             | `specs/<NNN>_<tarea>_plan.md`, `specs/<NNN>_<tarea>_verificador.md`, `MEMORY.md`                             | `.seb/bin/seb plan-lock <tarea>`        |
+| **Implementador**   | Todo el repositorio                            | Código fuente, tests, `MEMORY.md` (**PROHIBIDO** editar `constitution.md`, `*_spec.md` o `*_verificador.md`) | Tests, linters, compiladores locales    |
+| `seb-verificador`   | `specs/*`, resultados de verificación          | `MEMORY.md` (solo si detecta limitaciones de entorno)                                                        | `.seb/bin/seb verify <tarea>`           |
 
-* Hodor **firma** tokens con una llave privada RSA (2048 bits).  
-* Hodor **expone** las llaves públicas en el endpoint /.well-known/jwks.json.  
-* Ningún servicio externo debe tener acceso a la llave privada ni compartir secretos simétricos.
+_Nota de integridad_: Durante la implementación está estrictamente prohibido modificar, comentar o debilitar assertions en `specs/<NNN>_<tarea>_verificador.md` o en tests existentes para forzar un resultado exitoso (_reward-hacking_). Si un test o requisito es inviable técnicamente, detén la implementación, documéntalo en `MEMORY.md` y solicita volver a `seb-clarificador` o `seb-planificador`.
 
-### **2\. Estructura de Código (Hexagonal)**
+## 4. Herramientas Nativas del Harness (`.seb/bin/seb`)
 
-Se prefiere un diseño de **Puertos y Adaptadores**:
+Delega las operaciones de control, numeración, verificación y telemetría en el binario del harness:
 
-* domain: Lógica pura de identidad y reglas de negocio.  
-* application: Casos de uso (ej. RegisterUserUseCase).  
-* infrastructure: Implementaciones de Spring Security, JPA, y controladores REST.
+- `.seb/bin/seb spec-next <nombre_tarea>`: Reserva en SQLite el siguiente número secuencial (`001`, `002`...) e imprime la ruta del archivo spec.
+- `.seb/bin/seb verify <nombre_tarea>`: Ejecuta de forma aislada y determinista todos los checks definidos en `specs/<NNN>_<nombre_tarea>_verificador.md` y registra el resultado en `.seb/seb-audit.db`.
+- `.seb/bin/seb memory-add "<categoría>" "<descripción>"`: Añade una entrada estructurada en `MEMORY.md` y la vincula a la tarea activa en SQLite.
+- `.seb/bin/seb audit report`: Muestra el consumo de tiempo (latencia), herramientas usadas, tokens y costo acumulado por tarea.
 
-### **3\. Gestión de Identidad (Multi-sistema)**
+## 5. Eficiencia de Contexto y Tokens
 
-* Los usuarios están vinculados a **Clients** (sistemas).  
-* El acceso se controla mediante **Roles/Authorities** específicos por sistema (ROLE\_USER\_BLOG, ROLE\_ADMIN\_API).
-
-## ---
-
-**🔐 Reglas de Seguridad Innegociables**
-
-* **Passwords:** Nunca en texto plano. Uso obligatorio de BCryptPasswordEncoder.  
-* **Bootstrap:** El primer administrador se crea vía variables de entorno (AUTH\_ADMIN\_USER, AUTH\_ADMIN\_PASS) solo si la base de datos está vacía (Patrón Idempotente).  
-* **Endpoints Admin:** Los recursos bajo /api/admin/\*\* deben requerir un token con el scope admin o ser validados contra una Master Key de infraestructura.
-
-## ---
-
-**🚀 Flujo de Desarrollo (Workflow)**
-
-1. **Database First (via Flyway):** Cualquier cambio en el modelo debe iniciar con un archivo .sql de migración en src/main/resources/db/migration.  
-2. **Contract First:** Los cambios en la API deben reflejarse primero en el archivo openapi-spec.json.  
-3. **Observability:** Todos los componentes críticos deben ser monitoreables vía **Spring Actuator**.  
-4. **Optimización:** El código debe ser compatible con la compilación nativa de **GraalVM** para reducir el footprint en el servidor Docker.
-5. **Testing Obligatorio:** El proyecto debe tener tests. Toda funcionalidad que se agregue debe incluir test unitarios.
-6. **Docker:** El proyecto debe correr tanto en local como en producción usando Docker.
-
-## ---
-
-**📝 Notas para el Agente**
-
-Cuando sugieras código para Hodor, prioriza la sintaxis moderna de Java 25\. Evita el uso de librerías externas si Spring Boot ya provee una solución nativa. Si propones un cambio en la seguridad, explica siempre el impacto en el flujo de los clientes (Blog/API Go).
-
-### ---
-
+- Sé quirúrgico al explorar el repositorio: usa búsquedas dirigidas (`grep`/`ripgrep`, listado de directorios) en lugar de volcar archivos completos irrelevantes en el contexto.
+- Si encuentras una restricción de arquitectura, librería incompatible o fallo de entorno que no dependa del código de la tarea, regístralo inmediatamente en `MEMORY.md` para evitar que futuras sesiones repitan la misma investigación.

@@ -36,3 +36,5 @@ build/
 .envrc
 .direnv/
 .env
+.seb/bin/
+.seb/seb-audit.db*
