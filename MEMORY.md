@@ -9,28 +9,30 @@
 
 ## 1. Estado Actual del Proyecto
 
-- **Fase SDD activa:** Inicialización (`seb-harness` instalado).
+- **Fase SDD activa:** Constitución completada (Fase 0 finalizada con `seb-iniciador`).
+- **Documento rector:** `docs/constitution.md` generado y activo.
 - **Última Spec verificada:** Ninguna.
-- **Estado de la suite de verificación:** Pendiente de primera ejecución con `.seb/bin/seb verify`.
+- **Estado de la suite de verificación:** Pendiente de primera spec y verificación con `.seb/bin/seb verify`.
 
 ## 2. Callejones sin Salida y Enfoques Descartados (NO REINTENTAR)
 
 _Registro de librerías, patrones o configuraciones que se probaron en este proyecto y fallaron o resultaron incompatibles._
 
-- _(Vacío inicialmente — Formato requerido: `[Fecha] [Tarea/Spec] Qué se intentó -> Por qué falló -> Alternativa adoptada`)_
+- _(Vacío actualmente — Formato requerido: `[Fecha] [Tarea/Spec] Qué se intentó -> Por qué falló -> Alternativa adoptada`)_
 
 ## 3. Restricciones Técnicas y Trampas Conocidas (Gotchas)
 
 _Limitaciones del entorno (NixOS, kernel, contenedores, base de datos, versiones del compilador/runtime) o del dominio que no son obvias leyendo el código._
 
-- _(Vacío inicialmente — Formato requerido: `[Componente] Restricción detectada -> Impacto en tests o compilación`)_
+- `[NixOS / Java 25]` Ejecutar `./mvnw` directamente falla si no se inicializa el devShell de Nix -> Impacto en tests o compilación: Error de `JAVA_HOME is not defined`. Mitigación: Prefijar siempre comandos con `direnv exec .` o ejecutarlos vía `nix develop --command`.
+- `[Docker / Testcontainers]` Las suites de integración (`@SpringBootTest` con `@Testcontainers`) requieren acceso al socket de Docker -> Impacto en tests: Si el daemon de Docker no está accesible, fallan las pruebas que levantan PostgreSQLContainer.
 
 ## 4. Riesgos Conocidos y Deuda Técnica Activa
 
 _Riesgos arquitectónicos o casos borde postergados conscientemente para futuras specs._
 
-- _(Vacío inicialmente — Formato requerido: `[ID-Spec] Descripción del riesgo -> Condición de mitigación`)_
+- _(Vacío actualmente — Formato requerido: `[ID-Spec] Descripción del riesgo -> Condición de mitigación`)_
 
 ## 5. Decisiones Técnicas Relevantes (Histórico Reciente)
 
-- _(Vacío inicialmente — Formato requerido: `[D-XX] Decisión tomada -> Alternativa descartada -> Motivo`)_
+- `[D-01]` Consolidación de Constitución desde `AGENTS.pre-seb.md` y `GEMINI.pre-seb.md` -> Alternativa descartada: Mantener múltiples archivos de contexto dispersos -> Motivo: Establecer `docs/constitution.md` como la única fuente de verdad innegociable bajo `seb-harness`.
