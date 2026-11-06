@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+.archify/
+bin/
+skills/system/run-workflow/SKILL.md
+
+# Nix y entorno local
+.envrc
+.direnv/
+.env
+.seb/bin/
+.seb/seb-audit.db*
+.seb/ACTIVE_ROLE
