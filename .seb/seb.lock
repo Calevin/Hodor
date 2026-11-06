@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "001_actualizar_cliente": {
+      "spec_hash": "f3221ec4bc2ae78c4e7c4eaec97109e831994f0f7aefd15b8d0e50419d34c662",
+      "verifier_hash": "b27b500a64937a3f1c50681ed6e9bfe133238a13bf06c03bf3dd006c6ec483fa",
+      "verified": true,
+      "commit_hash": "d2da168"
+    }
+  }
+}

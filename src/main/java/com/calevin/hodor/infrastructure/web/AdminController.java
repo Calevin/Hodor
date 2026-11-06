@@ -1,6 +1,8 @@
 package com.calevin.hodor.infrastructure.web;
 
 import com.calevin.hodor.application.dtos.ClientRegistrationRequest;
+import com.calevin.hodor.application.dtos.ClientResponse;
+import com.calevin.hodor.application.dtos.ClientUpdateRequest;
 import com.calevin.hodor.application.dtos.RoleAssignmentRequest;
 import com.calevin.hodor.application.dtos.UserRegistrationRequest;
 import com.calevin.hodor.application.dtos.UserResponse;
@@ -36,6 +38,12 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public void registerClient(@Valid @RequestBody ClientRegistrationRequest request) {
         clientManagementService.registerClient(request);
+    }
+
+    @PatchMapping("/clients/{clientId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ClientResponse updateClient(@PathVariable String clientId, @Valid @RequestBody ClientUpdateRequest request) {
+        return clientManagementService.updateClient(clientId, request);
     }
 
     @GetMapping("/users")

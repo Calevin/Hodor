@@ -17,16 +17,21 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.Mockito.when;
 import com.calevin.hodor.application.dtos.AuthorizedSystemResponse;
+import com.calevin.hodor.application.dtos.ClientResponse;
+import com.calevin.hodor.application.dtos.ClientUpdateRequest;
 import com.calevin.hodor.application.dtos.UserResponse;
+import com.calevin.hodor.application.exceptions.ClientNotFoundException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -201,6 +206,119 @@ class AdminControllerTest {
         @DisplayName("Debe redirigir al login (3xx) al listar usuarios si no esta autenticado")
         void listUsers_WhenNotAuthenticated_ReturnsRedirect() throws Exception {
                 mockMvc.perform(get("/api/admin/users"))
+                                .andExpect(status().is3xxRedirection());
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("Debe actualizar el cliente y retornar 200 OK con el estado final si tiene rol ADMIN")
+        void updateClient_WhenValidPayloadAndAdmin_ReturnsOk() throws Exception {
+                String clientId = "service-client";
+                ClientUpdateRequest request = new ClientUpdateRequest(
+                                "https://new.domain.com/callback",
+                                "https://new.domain.com/logout",
+                                Set.of("openid", "profile"),
+                                120L,
+                                45L);
+
+                ClientResponse response = new ClientResponse(
+                                clientId,
+                                "https://new.domain.com/callback",
+                                "https://new.domain.com/logout",
+                                Set.of("openid", "profile"),
+                                120L,
+                                45L);
+
+                when(clientManagementService.updateClient(eq(clientId), any(ClientUpdateRequest.class)))
+                                .thenReturn(response);
+
+                mockMvc.perform(patch("/api/admin/clients/" + clientId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.clientId").value(clientId))
+                                .andExpect(jsonPath("$.redirectUri").value("https://new.domain.com/callback"))
+                                .andExpect(jsonPath("$.postLogoutRedirectUri").value("https://new.domain.com/logout"))
+                                .andExpect(jsonPath("$.accessTokenTimeoutMinutes").value(120))
+                                .andExpect(jsonPath("$.refreshTokenTimeoutDays").value(45))
+                                .andExpect(jsonPath("$.clientSecret").doesNotExist());
+
+                verify(clientManagementService).updateClient(eq(clientId), any(ClientUpdateRequest.class));
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("Debe devolver 404 Not Found si el cliente no existe")
+        void updateClient_WhenClientNotFound_ReturnsNotFound() throws Exception {
+                String clientId = "unknown-client";
+                ClientUpdateRequest request = new ClientUpdateRequest(
+                                "https://domain.com/callback",
+                                null,
+                                null,
+                                null,
+                                null);
+
+                when(clientManagementService.updateClient(eq(clientId), any(ClientUpdateRequest.class)))
+                                .thenThrow(new ClientNotFoundException("El cliente '" + clientId + "' no existe."));
+
+                mockMvc.perform(patch("/api/admin/clients/" + clientId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("Debe devolver 400 Bad Request cuando el formato de URI o timeouts son invalidos")
+        void updateClient_WhenInvalidPayload_ReturnsBadRequest() throws Exception {
+                ClientUpdateRequest request = new ClientUpdateRequest(
+                                "invalid-uri-not-http",
+                                null,
+                                null,
+                                -5L,
+                                null);
+
+                mockMvc.perform(patch("/api/admin/clients/test-client")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @WithMockUser(roles = "USER")
+        @DisplayName("Debe devolver Forbidden (403) al actualizar cliente si NO tiene rol ADMIN")
+        void updateClient_SecurityChecks_WhenNotAdmin_ReturnsForbidden() throws Exception {
+                ClientUpdateRequest request = new ClientUpdateRequest(
+                                "https://domain.com/callback",
+                                null,
+                                null,
+                                null,
+                                null);
+
+                mockMvc.perform(patch("/api/admin/clients/test-client")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("Debe redirigir al login (3xx) al actualizar cliente si no esta autenticado")
+        void updateClient_SecurityChecks_WhenNotAuthenticated_ReturnsRedirectOrUnauthorized() throws Exception {
+                ClientUpdateRequest request = new ClientUpdateRequest(
+                                "https://domain.com/callback",
+                                null,
+                                null,
+                                null,
+                                null);
+
+                mockMvc.perform(patch("/api/admin/clients/test-client")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
                                 .andExpect(status().is3xxRedirection());
         }
 }

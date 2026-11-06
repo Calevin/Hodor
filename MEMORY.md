@@ -9,10 +9,10 @@
 
 ## 1. Estado Actual del Proyecto
 
-- **Fase SDD activa:** Constitución completada (Fase 0 finalizada con `seb-iniciador`).
+- **Fase SDD activa:** Implementación y verificación completadas para Spec `001_actualizar_cliente`.
 - **Documento rector:** `docs/constitution.md` generado y activo.
-- **Última Spec verificada:** Ninguna.
-- **Estado de la suite de verificación:** Pendiente de primera spec y verificación con `.seb/bin/seb verify`.
+- **Última Spec verificada:** `001_actualizar_cliente` (2026-11-06).
+- **Estado de la suite de verificación:** 9/9 controles deterministas en `[PASA]` (100% de cobertura programática).
 
 ## 2. Callejones sin Salida y Enfoques Descartados (NO REINTENTAR)
 
@@ -36,3 +36,4 @@ _Riesgos arquitectónicos o casos borde postergados conscientemente para futuras
 ## 5. Decisiones Técnicas Relevantes (Histórico Reciente)
 
 - `[D-01]` Consolidación de Constitución desde `AGENTS.pre-seb.md` y `GEMINI.pre-seb.md` -> Alternativa descartada: Mantener múltiples archivos de contexto dispersos -> Motivo: Establecer `docs/constitution.md` como la única fuente de verdad innegociable bajo `seb-harness`.
+- `[D-02]` `[001_actualizar_cliente]` Actualización parcial vía `PATCH /api/admin/clients/{clientId}` preservando `clientSecret` y reconstruyendo con `RegisteredClient.from(existing)` -> Alternativa descartada: `PUT` con payload completo -> Motivo: Evitar sobreescrituras accidentales de timeouts/secretos y desacoplar la rotación de credenciales.
