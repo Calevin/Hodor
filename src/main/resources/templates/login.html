@@ -54,8 +54,33 @@
                 <p th:text="#{login.logout}">Logout!</p>
             </div>
 
+            <!-- Tarjeta de Sesión Activa -->
+            <div th:if="${isAuthenticated}" class="session-active-card">
+                <div class="session-info">
+                    <p class="session-greeting" th:text="#{login.session.active.message(${username})}">
+                        Has iniciado sesión como <strong th:text="${username}">usuario</strong>
+                    </p>
+                </div>
+
+                <!-- Continuar con OAuth2 si existe petición retenida -->
+                <div th:if="${continueUrl != null}" class="form-group session-continue-group">
+                    <a th:href="${continueUrl}" class="btn btn-primary" th:text="${clientName != null} ? #{login.session.active.continue.app(${clientName})} : #{login.session.active.continue}">
+                        Continuar
+                    </a>
+                </div>
+
+                <div class="session-actions">
+                    <!-- Formulario POST para cerrar sesión -->
+                    <form th:action="@{/logout}" method="post" class="logout-form">
+                        <button type="submit" class="btn btn-secondary" th:text="#{login.session.active.logout}">
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <!-- Formulario de Login nativo de Spring Security -->
-            <form th:action="@{/login}" method="post" class="login-form">
+            <form th:unless="${isAuthenticated}" th:action="@{/login}" method="post" class="login-form">
                 <div class="form-group">
                     <label for="username" th:text="#{login.username}">Usuario</label>
                     <input type="text" id="username" name="username" required 

@@ -9,10 +9,10 @@
 
 ## 1. Estado Actual del Proyecto
 
-- **Fase SDD activa:** Implementación y verificación completadas para Spec `001_actualizar_cliente`.
+- **Fase SDD activa:** Implementación y verificación completadas para Spec `002_gestion_sesion_activa_ui`.
 - **Documento rector:** `docs/constitution.md` generado y activo.
-- **Última Spec verificada:** `001_actualizar_cliente` (2026-11-06).
-- **Estado de la suite de verificación:** 9/9 controles deterministas en `[PASA]` (100% de cobertura programática).
+- **Última Spec verificada:** `002_gestion_sesion_activa_ui` (2026-11-07).
+- **Estado de la suite de verificación:** 12/12 controles deterministas en `[PASA]` (100% de cobertura programática).
 
 ## 2. Callejones sin Salida y Enfoques Descartados (NO REINTENTAR)
 
@@ -37,3 +37,4 @@ _Riesgos arquitectónicos o casos borde postergados conscientemente para futuras
 
 - `[D-01]` Consolidación de Constitución desde `AGENTS.pre-seb.md` y `GEMINI.pre-seb.md` -> Alternativa descartada: Mantener múltiples archivos de contexto dispersos -> Motivo: Establecer `docs/constitution.md` como la única fuente de verdad innegociable bajo `seb-harness`.
 - `[D-02]` `[001_actualizar_cliente]` Actualización parcial vía `PATCH /api/admin/clients/{clientId}` preservando `clientSecret` y reconstruyendo con `RegisteredClient.from(existing)` -> Alternativa descartada: `PUT` con payload completo -> Motivo: Evitar sobreescrituras accidentales de timeouts/secretos y desacoplar la rotación de credenciales.
+- `[D-03]` `[002_gestion_sesion_activa_ui]` Cierre de sesión unificado vía formulario POST único hacia `/logout` y redirección de raíz `/` a `/login` con bifurcación condicional en Thymeleaf -> Alternativa descartada: Mantener botón duplicado de 'iniciar sesión con otra cuenta' o enlaces GET -> Motivo: Evitar redundancia visual en arquitectura de sesión única y prevenir vulnerabilidades de prefetching HTTP.

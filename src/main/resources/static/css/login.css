@@ -272,6 +272,54 @@ h1 {
     color: white;
 }
 
+/* Active Session Card */
+.session-active-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.session-greeting {
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.session-greeting strong {
+    color: var(--accent);
+}
+
+.session-continue-group a {
+    display: block;
+    text-decoration: none;
+    text-align: center;
+}
+
+.session-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.session-actions form {
+    width: 100%;
+}
+
+.session-actions button {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.session-actions button:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
 .footer {
     padding: 2rem;
     text-align: center;

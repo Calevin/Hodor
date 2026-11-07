@@ -5,6 +5,12 @@
       "verifier_hash": "b27b500a64937a3f1c50681ed6e9bfe133238a13bf06c03bf3dd006c6ec483fa",
       "verified": true,
       "commit_hash": "d2da168"
+    },
+    "002_gestion_sesion_activa_ui": {
+      "spec_hash": "5b593af6f5e08418030e87e54df49403ef521a8937ffc591eb3159ce6867ef8c",
+      "verifier_hash": "3b2cc7f499f5af84f67a9a7f2a4cca5232f6cd6f1e3a7b09edc35973e9d9f872",
+      "verified": true,
+      "commit_hash": "8834a50"
     }
   }
 }

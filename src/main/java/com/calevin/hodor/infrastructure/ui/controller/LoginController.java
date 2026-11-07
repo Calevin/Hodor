@@ -1,5 +1,7 @@
 package com.calevin.hodor.infrastructure.ui.controller;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -18,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Controlador de la UI para gestionar la página de inicio de sesión personalizada.
- * 
+ * Controlador de la UI para gestionar la página de inicio de sesión personalizada y la raiz del IdP.
+ *
  * @author Hodor Agent
  */
 @Controller
@@ -34,10 +36,21 @@ public class LoginController {
     }
 
     /**
-     * Sirve la vista de inicio de sesión (Thymeleaf).
-     * 
+     * Redirige la peticion a la raiz del proveedor de identidad hacia la vista de login.
+     *
+     * @return Redireccion HTTP 302 hacia /login.
+     */
+    @GetMapping("/")
+    public String root() {
+        return "redirect:/login";
+    }
+
+    /**
+     * Sirve la vista de inicio de sesión o la tarjeta de sesion activa (Thymeleaf).
+     *
      * @param error Si se incluye el parámetro error, indica que hubo un intento fallido.
      * @param logout Si se incluye el parámetro logout, indica que el usuario acaba de salir.
+     * @param authentication Contexto de autenticacion actual de Spring Security.
      * @param request La petición HTTP actual.
      * @param response La respuesta HTTP actual.
      * @param model El modelo de Spring MVC para pasar datos a la vista.
@@ -47,9 +60,21 @@ public class LoginController {
     public String login(
             @RequestParam(name = "error", required = false) String error,
             @RequestParam(name = "logout", required = false) String logout,
+            Authentication authentication,
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) {
+
+        boolean isLogout = Optional.ofNullable(logout).isPresent();
+        boolean isAuthenticated = authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)
+                && !isLogout;
+
+        model.addAttribute("isAuthenticated", isAuthenticated);
+        if (isAuthenticated) {
+            model.addAttribute("username", authentication.getName());
+        }
 
         // Intentamos recuperar la aplicación que solicita el login desde la RequestCache
         SavedRequest savedRequest = requestCache.getRequest(request, response);
@@ -63,17 +88,18 @@ public class LoginController {
                     // ser el ID interno (un UUID de 36 caracteres).
                     String clientName = client.getClientName();
                     String clientIdValue = client.getClientId();
-                    
-                    String displayName = (clientName != null && !clientName.isBlank() && clientName.length() != 36) 
-                            ? clientName 
+
+                    String displayName = (clientName != null && !clientName.isBlank() && clientName.length() != 36)
+                            ? clientName
                             : clientIdValue;
                     model.addAttribute("clientName", displayName);
                 }
             }
+            model.addAttribute("continueUrl", savedRequest.getRedirectUrl());
         }
 
         model.addAttribute("hasError", Optional.ofNullable(error).isPresent());
-        model.addAttribute("isLogout", Optional.ofNullable(logout).isPresent());
+        model.addAttribute("isLogout", isLogout);
 
         // Recuperamos el último usuario intentado de la sesión de Spring Security para mejorar UX
         HttpSession session = request.getSession(false);
