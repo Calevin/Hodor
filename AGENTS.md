@@ -21,19 +21,21 @@ El desarrollo en este repositorio sigue una máquina de estados estricta goberna
 - **Fase 3 — Planificación (`seb-planificador`)**: A partir de una spec clarificada, genera `specs/<NNN>_<tarea>_plan.md` y `specs/<NNN>_<tarea>_verificador.md`. **Bloqueo duro**: Prohibido generar el plan si algún requisito carece de verificación programática (test, linter, compilación).
 - **Fase 4 — Implementación (Agente Constructor)**: Escribe el código y los tests siguiendo exactamente `specs/<NNN>_<tarea>_plan.md`.
 - **Fase 5 — Verificación (`seb-verificador`)**: Ejecuta `.seb/bin/seb verify <tarea>`, evalúa de forma determinista los comandos de `specs/<NNN>_<tarea>_verificador.md` y emite el informe de cobertura (`[PASA]` / `[FALLA]`).
+- **Fase 6 — Documentación (`seb-documentador`)**: Genera o actualiza la documentación funcional de casos de uso (UC) y diagramas Mermaid en `docs/use-cases/` a partir de specs verificadas deterministamente.
 
 ## 3. Principio de Menor Privilegio (Guardarraíles por Fase)
 
 Tienes terminantemente prohibido violar los permisos de tu rol activo:
 
-| Rol / Skill Activo  | Lectura Permitida                              | Escritura Permitida                                                                                          | Ejecución de Comandos                   |
-| :------------------ | :--------------------------------------------- | :----------------------------------------------------------------------------------------------------------- | :-------------------------------------- |
-| `seb-iniciador`     | Configs de proyecto, estructura de directorios | `docs/constitution.md`, `MEMORY.md`, `AGENTS.md`                                                             | Solo inspección pasiva y `.seb/bin/seb` |
-| `seb-especificador` | `docs/constitution.md`, `MEMORY.md`, `specs/`  | `specs/<NNN>_<tarea>_spec.md`                                                                                | `.seb/bin/seb spec-next <tarea>`        |
-| `seb-clarificador`  | Todo el repositorio (solo lectura)             | `specs/<NNN>_<tarea>_spec.md`, `MEMORY.md`                                                                   | `.seb/bin/seb status`                   |
-| `seb-planificador`  | Todo el repositorio (solo lectura)             | `specs/<NNN>_<tarea>_plan.md`, `specs/<NNN>_<tarea>_verificador.md`, `MEMORY.md`                             | `.seb/bin/seb plan-lock <tarea>`        |
-| **Implementador**   | Todo el repositorio                            | Código fuente, tests, `MEMORY.md` (**PROHIBIDO** editar `constitution.md`, `*_spec.md` o `*_verificador.md`) | Tests, linters, compiladores locales    |
-| `seb-verificador`   | `specs/*`, resultados de verificación          | `MEMORY.md` (solo si detecta limitaciones de entorno)                                                        | `.seb/bin/seb verify <tarea>`           |
+| Rol / Skill Activo  | Lectura Permitida                                                      | Escritura Permitida                                                                                          | Ejecución de Comandos                   |
+| :------------------ | :--------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------- | :-------------------------------------- |
+| `seb-iniciador`     | Configs de proyecto, estructura de directorios                         | `docs/constitution.md`, `MEMORY.md`, `AGENTS.md`                                                             | Solo inspección pasiva y `.seb/bin/seb` |
+| `seb-especificador` | `docs/constitution.md`, `MEMORY.md`, `specs/`                          | `specs/<NNN>_<tarea>_spec.md`                                                                                | `.seb/bin/seb spec-next <tarea>`        |
+| `seb-clarificador`  | Todo el repositorio (solo lectura)                                     | `specs/<NNN>_<tarea>_spec.md`, `MEMORY.md`                                                                   | `.seb/bin/seb status`                   |
+| `seb-planificador`  | Todo el repositorio (solo lectura)                                     | `specs/<NNN>_<tarea>_plan.md`, `specs/<NNN>_<tarea>_verificador.md`, `MEMORY.md`                             | `.seb/bin/seb plan-lock <tarea>`        |
+| **Implementador**   | Todo el repositorio                                                    | Código fuente, tests, `MEMORY.md` (**PROHIBIDO** editar `constitution.md`, `*_spec.md` o `*_verificador.md`) | Tests, linters, compiladores locales    |
+| `seb-verificador`   | `specs/*`, resultados de verificación                                  | `MEMORY.md` (solo si detecta limitaciones de entorno)                                                        | `.seb/bin/seb verify <tarea>`           |
+| `seb-documentador`  | `docs/constitution.md`, `specs/*`, código fuente, tests (solo lectura) | `docs/use-cases/*.md`, `docs/use-cases/README.md`, `MEMORY.md`                                               | Inspección pasiva (`git diff`, etc.)    |
 
 _Nota de integridad_: Durante la implementación está estrictamente prohibido modificar, comentar o debilitar assertions en `specs/<NNN>_<tarea>_verificador.md` o en tests existentes para forzar un resultado exitoso (_reward-hacking_). Si un test o requisito es inviable técnicamente, detén la implementación, documéntalo en `MEMORY.md` y solicita volver a `seb-clarificador` o `seb-planificador`.
 
