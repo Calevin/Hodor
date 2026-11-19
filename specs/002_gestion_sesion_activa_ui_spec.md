@@ -18,9 +18,9 @@ El objetivo de esta especificación es dotar a la interfaz de usuario de Hodor d
 
 ## 3. Historias de Usuario
 
-- **HU-01:** Como usuario con una sesión activa en Hodor, quiero visualizar en pantalla qué cuenta está actualmente conectada cuando visite la interfaz del proveedor de identidad, para tener certeza sobre la identidad activa antes de interactuar con el ecosistema.
-- **HU-02:** Como usuario con una sesión activa en Hodor, quiero disponer de una acción visible para cerrar la sesión actual mediante un método HTTP seguro, para finalizar mi acceso de forma determinista y permitir el ingreso con otra cuenta.
-- **HU-03:** Como usuario autenticado en Hodor que es redirigido por una aplicación consumidora OAuth2, quiero ver el nombre de dicha aplicación y tener la opción de continuar hacia ella con mi cuenta actual o cerrar sesión antes de autorizar el acceso.
+- **002-HU-01:** Como usuario con una sesión activa en Hodor, quiero visualizar en pantalla qué cuenta está actualmente conectada cuando visite la interfaz del proveedor de identidad, para tener certeza sobre la identidad activa antes de interactuar con el ecosistema.
+- **002-HU-02:** Como usuario con una sesión activa en Hodor, quiero disponer de una acción visible para cerrar la sesión actual mediante un método HTTP seguro, para finalizar mi acceso de forma determinista y permitir el ingreso con otra cuenta.
+- **002-HU-03:** Como usuario autenticado en Hodor que es redirigido por una aplicación consumidora OAuth2, quiero ver el nombre de dicha aplicación y tener la opción de continuar hacia ella con mi cuenta actual o cerrar sesión antes de autorizar el acceso.
 
 ## 4. Definiciones de Dominio
 
@@ -30,25 +30,25 @@ El objetivo de esta especificación es dotar a la interfaz de usuario de Hodor d
 
 ## 5. Requisitos Funcionales (Criterios de Aceptación en EARS)
 
-- **RF-01 (State-Driven):** MIENTRAS un usuario mantenga una sesión autenticada activa, EL SISTEMA DEBE presentar en la interfaz de acceso (`/login`) una vista de sesión conectada con el nombre de usuario autenticado en lugar de los campos de captura de credenciales.
-- **RF-02 (State-Driven):** MIENTRAS un usuario mantenga una sesión autenticada activa y visualice la vista de sesión conectada, EL SISTEMA DEBE proveer un único control interactivo para cerrar la sesión mediante una solicitud HTTP POST hacia el endpoint de logout (`/logout`).
-- **RF-03 (Event-Driven):** CUANDO el usuario active el control de cierre de sesión, EL SISTEMA DEBE invalidar la sesión en el servidor, eliminar las cookies de sesión del navegador y redirigir a `/login?logout` presentando el mensaje de confirmación de salida junto al formulario limpio de inicio de sesión.
-- **RF-04 (Event-Driven):** CUANDO un usuario no autenticado (anónimo o con sesión expirada) acceda a la interfaz de acceso (`/login`), EL SISTEMA DEBE presentar el formulario tradicional de solicitud de credenciales (usuario y contraseña).
-- **RF-05 (Event-Driven):** CUANDO un usuario no autenticado acceda a la ruta raíz (`/`) del proveedor de identidad, EL SISTEMA DEBE responder con una redirección HTTP 302 hacia `/login`.
-- **RF-06 (State-Driven):** MIENTRAS un usuario mantenga una sesión autenticada activa y acceda a la ruta raíz (`/`) del proveedor de identidad, EL SISTEMA DEBE responder con una redirección HTTP 302 hacia `/login` (donde se presentará la vista de sesión conectada conforme a `RF-01`).
-- **RF-07 (Event-Driven):** CUANDO un usuario con sesión activa acceda a `/login` en el contexto de una solicitud OAuth2 retenida (`SavedRequest`), EL SISTEMA DEBE desplegar el nombre de la aplicación cliente solicitante y un botón interactivo «Continuar a [Nombre de App] como [usuario]» que prosiga el flujo de autorización hacia dicha aplicación, manteniendo disponible el control de cierre de sesión.
+- **002-RF-01 (State-Driven):** MIENTRAS un usuario mantenga una sesión autenticada activa, EL SISTEMA DEBE presentar en la interfaz de acceso (`/login`) una vista de sesión conectada con el nombre de usuario autenticado en lugar de los campos de captura de credenciales.
+- **002-RF-02 (State-Driven):** MIENTRAS un usuario mantenga una sesión autenticada activa y visualice la vista de sesión conectada, EL SISTEMA DEBE proveer un único control interactivo para cerrar la sesión mediante una solicitud HTTP POST hacia el endpoint de logout (`/logout`).
+- **002-RF-03 (Event-Driven):** CUANDO el usuario active el control de cierre de sesión, EL SISTEMA DEBE invalidar la sesión en el servidor, eliminar las cookies de sesión del navegador y redirigir a `/login?logout` presentando el mensaje de confirmación de salida junto al formulario limpio de inicio de sesión.
+- **002-RF-04 (Event-Driven):** CUANDO un usuario no autenticado (anónimo o con sesión expirada) acceda a la interfaz de acceso (`/login`), EL SISTEMA DEBE presentar el formulario tradicional de solicitud de credenciales (usuario y contraseña).
+- **002-RF-05 (Event-Driven):** CUANDO un usuario no autenticado acceda a la ruta raíz (`/`) del proveedor de identidad, EL SISTEMA DEBE responder con una redirección HTTP 302 hacia `/login`.
+- **002-RF-06 (State-Driven):** MIENTRAS un usuario mantenga una sesión autenticada activa y acceda a la ruta raíz (`/`) del proveedor de identidad, EL SISTEMA DEBE responder con una redirección HTTP 302 hacia `/login` (donde se presentará la vista de sesión conectada conforme a `002-RF-01`).
+- **002-RF-07 (Event-Driven):** CUANDO un usuario con sesión activa acceda a `/login` en el contexto de una solicitud OAuth2 retenida (`SavedRequest`), EL SISTEMA DEBE desplegar el nombre de la aplicación cliente solicitante y un botón interactivo «Continuar a [Nombre de App] como [usuario]» que prosiga el flujo de autorización hacia dicha aplicación, manteniendo disponible el control de cierre de sesión.
 
 ## 6. Requisitos No Funcionales (Verificables)
 
-- **RNF-01 (Seguridad y Destrucción de Sesión):** La acción de cierre de sesión debe ejecutarse forzosamente mediante el método HTTP POST para mitigar ataques de prefetching y cross-site invocation.
-- **RNF-02 (Internacionalización):** Todas las etiquetas, textos y mensajes de la vista de sesión conectada deben estar traducidos en los idiomas soportados (Español e Inglés).
-- **RNF-03 (Consistencia de Diseño y Minimalismo):** La interfaz de sesión conectada debe mantener la línea visual existente (paleta Solarized), diseño responsivo y evitar controles redundantes que produzcan el mismo efecto de estado.
+- **002-RNF-01 (Seguridad y Destrucción de Sesión):** La acción de cierre de sesión debe ejecutarse forzosamente mediante el método HTTP POST para mitigar ataques de prefetching y cross-site invocation.
+- **002-RNF-02 (Internacionalización):** Todas las etiquetas, textos y mensajes de la vista de sesión conectada deben estar traducidos en los idiomas soportados (Español e Inglés).
+- **002-RNF-03 (Consistencia de Diseño y Minimalismo):** La interfaz de sesión conectada debe mantener la línea visual existente (paleta Solarized), diseño responsivo y evitar controles redundantes que produzcan el mismo efecto de estado.
 
 ## 7. Casos Límite (Edge Cases)
 
-- **CL-01 (Expiración de sesión durante visualización):** Si la sesión expira en el servidor mientras la vista de sesión conectada permanece abierta y el usuario interactúa, el sistema debe tratar la petición como anónima y mostrar el formulario de login regular sin provocar excepciones no controladas.
-- **CL-02 (Parámetro logout explícito):** Si la petición contiene el parámetro de salida (`?logout`), el sistema debe mostrar con prioridad el formulario de login y el mensaje de confirmación de salida, ignorando cualquier estado residual.
-- **CL-03 (Múltiples pestañas concurrentes):** Si el usuario cierra sesión en una pestaña y recarga otra pestaña que mostraba la sesión conectada, el sistema debe presentar el formulario de inicio de sesión estándar.
+- **002-CL-01 (Expiración de sesión durante visualización):** Si la sesión expira en el servidor mientras la vista de sesión conectada permanece abierta y el usuario interactúa, el sistema debe tratar la petición como anónima y mostrar el formulario de login regular sin provocar excepciones no controladas.
+- **002-CL-02 (Parámetro logout explícito):** Si la petición contiene el parámetro de salida (`?logout`), el sistema debe mostrar con prioridad el formulario de login y el mensaje de confirmación de salida, ignorando cualquier estado residual.
+- **002-CL-03 (Múltiples pestañas concurrentes):** Si el usuario cierra sesión en una pestaña y recarga otra pestaña que mostraba la sesión conectada, el sistema debe presentar el formulario de inicio de sesión estándar.
 
 ## 8. Fuera de Alcance (Out of Scope)
 
@@ -59,7 +59,7 @@ El objetivo de esta especificación es dotar a la interfaz de usuario de Hodor d
 
 ## 9. Criterios de Finalización (Definition of Done)
 
-- Todos los requisitos funcionales (`RF-01` a `RF-07`) cuentan con verificación programática automatizada y reproducible mediante `.seb/bin/seb verify gestion_sesion_activa_ui`.
+- Todos los requisitos funcionales (`002-RF-01` a `002-RF-07`) cuentan con verificación programática automatizada y reproducible mediante `.seb/bin/seb verify gestion_sesion_activa_ui`.
 - Ausencia de violaciones a las reglas innegociables de `docs/constitution.md`.
 
 ## 10. Dudas Abiertas y Puntos por Clarificar

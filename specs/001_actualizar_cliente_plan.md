@@ -15,13 +15,13 @@ El diseño implementa la actualización parcial de clientes OAuth2 mediante sem�
 
 | Archivo / Ruta | Acción (`CREAR` / `MODIFICAR`) | Responsabilidad Técnica | Requisitos Cubiertos (`RF-XX`) |
 | :------------- | :----------------------------- | :---------------------- | :----------------------------- |
-| `src/main/java/com/calevin/hodor/application/dtos/ClientUpdateRequest.java` | `CREAR` | DTO inmutable (record) con validaciones para actualización parcial | `RF-01`, `RF-03` |
-| `src/main/java/com/calevin/hodor/application/dtos/ClientResponse.java` | `CREAR` | DTO inmutable (record) para exponer el estado final sin credenciales | `RF-01`, `RF-06` |
-| `src/main/java/com/calevin/hodor/application/exceptions/ClientNotFoundException.java` | `CREAR` | Excepción de dominio para clientes no encontrados (HTTP 404) | `RF-02` |
-| `src/main/java/com/calevin/hodor/application/services/ClientManagementService.java` | `MODIFICAR` | Método `updateClient` con actualización parcial, `@Transactional` | `RF-01`, `RF-02`, `RF-05`, `RF-06`, `RNF-02` |
-| `src/main/java/com/calevin/hodor/infrastructure/web/AdminController.java` | `MODIFICAR` | Endpoint `@PatchMapping("/clients/{clientId}")` con `@PreAuthorize` | `RF-01`, `RF-04`, `RNF-01` |
-| `src/test/java/com/calevin/hodor/application/services/ClientManagementServiceTest.java` | `CREAR` | Tests unitarios aislados con Mockito para la lógica de actualización | `RF-01`, `RF-02`, `RF-05`, `RF-06` |
-| `src/test/java/com/calevin/hodor/infrastructure/web/AdminControllerTest.java` | `MODIFICAR` | Tests web con MockMvc para el endpoint PATCH, validaciones y seguridad | `RF-01`, `RF-02`, `RF-03`, `RF-04`, `RF-06` |
+| `src/main/java/com/calevin/hodor/application/dtos/ClientUpdateRequest.java` | `CREAR` | DTO inmutable (record) con validaciones para actualización parcial | `001-RF-01`, `001-RF-03` |
+| `src/main/java/com/calevin/hodor/application/dtos/ClientResponse.java` | `CREAR` | DTO inmutable (record) para exponer el estado final sin credenciales | `001-RF-01`, `001-RF-06` |
+| `src/main/java/com/calevin/hodor/application/exceptions/ClientNotFoundException.java` | `CREAR` | Excepción de dominio para clientes no encontrados (HTTP 404) | `001-RF-02` |
+| `src/main/java/com/calevin/hodor/application/services/ClientManagementService.java` | `MODIFICAR` | Método `updateClient` con actualización parcial, `@Transactional` | `001-RF-01`, `001-RF-02`, `001-RF-05`, `001-RF-06`, `001-RNF-02` |
+| `src/main/java/com/calevin/hodor/infrastructure/web/AdminController.java` | `MODIFICAR` | Endpoint `@PatchMapping("/clients/{clientId}")` con `@PreAuthorize` | `001-RF-01`, `001-RF-04`, `001-RNF-01` |
+| `src/test/java/com/calevin/hodor/application/services/ClientManagementServiceTest.java` | `CREAR` | Tests unitarios aislados con Mockito para la lógica de actualización | `001-RF-01`, `001-RF-02`, `001-RF-05`, `001-RF-06` |
+| `src/test/java/com/calevin/hodor/infrastructure/web/AdminControllerTest.java` | `MODIFICAR` | Tests web con MockMvc para el endpoint PATCH, validaciones y seguridad | `001-RF-01`, `001-RF-02`, `001-RF-03`, `001-RF-04`, `001-RF-06` |
 
 ## 3. Contratos, Firmas y Modelo de Datos
 
@@ -90,15 +90,15 @@ public ClientResponse updateClient(String clientId, ClientUpdateRequest request)
 
 ## 5. Secuencia de Tareas Atómicas (TDD: Test en Rojo -> Código -> Test en Verde)
 
-- [x] **T1. Creación de DTOs y Excepción de Dominio** (`RF-01`, `RF-02`, `RF-03`)
+- [x] **T1. Creación de DTOs y Excepción de Dominio** (`001-RF-01`, `001-RF-02`, `001-RF-03`)
   - _Archivos:_ `ClientUpdateRequest.java`, `ClientResponse.java`, `ClientNotFoundException.java`
   - _Hecho cuando:_ `direnv exec . ./mvnw test-compile` compila con éxito.
-- [x] **T2. Tests Unitarios y Lógica de Servicio en ClientManagementService (TDD)** (`RF-01`, `RF-02`, `RF-05`, `RF-06`)
+- [x] **T2. Tests Unitarios y Lógica de Servicio en ClientManagementService (TDD)** (`001-RF-01`, `001-RF-02`, `001-RF-05`, `001-RF-06`)
   - _Archivos:_ `ClientManagementServiceTest.java`, `ClientManagementService.java`
-  - _Hecho cuando:_ Los comandos `CHK-01`, `CHK-06` y `CHK-07` devuelven exit code `0`.
-- [x] **T3. Tests WebMvc y Endpoint PATCH en AdminController (TDD)** (`RF-01`, `RF-02`, `RF-03`, `RF-04`)
+  - _Hecho cuando:_ Los comandos `001-CHK-01`, `001-CHK-06` y `001-CHK-07` devuelven exit code `0`.
+- [x] **T3. Tests WebMvc y Endpoint PATCH en AdminController (TDD)** (`001-RF-01`, `001-RF-02`, `001-RF-03`, `001-RF-04`)
   - _Archivos:_ `AdminControllerTest.java`, `AdminController.java`
-  - _Hecho cuando:_ Los comandos `CHK-02`, `CHK-03`, `CHK-04` y `CHK-05` devuelven exit code `0`.
-- [x] **T4. Verificación Determinista y Análisis Estático Global** (`RNF-01`, `RNF-02`)
+  - _Hecho cuando:_ Los comandos `001-CHK-02`, `001-CHK-03`, `001-CHK-04` y `001-CHK-05` devuelven exit code `0`.
+- [x] **T4. Verificación Determinista y Análisis Estático Global** (`001-RNF-01`, `001-RNF-02`)
   - _Archivos:_ Verificación general
-  - _Hecho cuando:_ `CHK-98` y `CHK-99` devuelven exit code `0` y `.seb/bin/seb verify actualizar_cliente` aprueba al 100%.
+  - _Hecho cuando:_ `001-CHK-98` y `001-CHK-99` devuelven exit code `0` y `.seb/bin/seb verify actualizar_cliente` aprueba al 100%.

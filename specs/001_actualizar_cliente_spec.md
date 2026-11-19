@@ -15,7 +15,7 @@ Actualmente el proveedor de identidad Hodor permite registrar nuevos clientes OA
 
 ## 3. Historias de Usuario
 
-- **HU-01:** Como Administrador de Sistemas, quiero actualizar selectivamente los parámetros de configuración de un cliente existente (como su `postLogoutRedirectUri`, `redirectUri`, `scopes` o tiempos de expiración) a través de la API administrativa para sincronizar los cambios de integración sin afectar la identidad del cliente ni exponer sus secretos.
+- **001-HU-01:** Como Administrador de Sistemas, quiero actualizar selectivamente los parámetros de configuración de un cliente existente (como su `postLogoutRedirectUri`, `redirectUri`, `scopes` o tiempos de expiración) a través de la API administrativa para sincronizar los cambios de integración sin afectar la identidad del cliente ni exponer sus secretos.
 
 ## 4. Definiciones de Dominio (Opcional)
 
@@ -26,23 +26,23 @@ Actualmente el proveedor de identidad Hodor permite registrar nuevos clientes OA
 
 ## 5. Requisitos Funcionales (Criterios de Aceptación en EARS)
 
-- **RF-01 (Event-Driven):** CUANDO un Administrador solicite la actualización parcial de un cliente mediante una petición a su ruta identificadora (`PATCH /api/admin/clients/{clientId}`) enviando uno o más atributos mutables válidos (`redirectUri`, `postLogoutRedirectUri`, `scopes`, `accessTokenTimeoutMinutes`, `refreshTokenTimeoutDays`), EL SISTEMA DEBE persistir las modificaciones preservando los valores preexistentes de los campos no provistos y responder con código HTTP 200 (OK) retornando la representación del cliente con su estado final.
-- **RF-02 (Unwanted Behavior):** SI se solicita la actualización de un cliente cuyo identificador (`clientId`) no existe en el sistema, ENTONCES EL SISTEMA DEBE rechazar la petición con código HTTP 404 (Not Found) y un mensaje descriptivo sin alterar ningún registro.
-- **RF-03 (Unwanted Behavior):** SI la solicitud de actualización contiene valores inválidos (tales como formato de URI malformado en `redirectUri` o `postLogoutRedirectUri`, conjunto vacío en `scopes` cuando se envíe, o valores menores o iguales a cero en los tiempos de expiración), ENTONCES EL SISTEMA DEBE rechazar la petición con código HTTP 400 (Bad Request) detallando las infracciones de validación.
-- **RF-04 (Unwanted Behavior):** SI un solicitante no autenticado o que carezca del rol administrativo (`ROLE_ADMIN`) intenta invocar la actualización de un cliente, ENTONCES EL SISTEMA DEBE denegar el acceso respondiendo con código HTTP 401 (Unauthorized) o 403 (Forbidden).
-- **RF-05 (Ubiquitous):** EL SISTEMA DEBE garantizar que el identificador de cliente (`clientId`) sea inmutable y no pueda ser alterado mediante la operación de actualización.
-- **RF-06 (Ubiquitous):** EL SISTEMA DEBE preservar intacto el secreto criptográfico (`clientSecret`) del cliente durante la actualización parcial y omitir dicho secreto en la respuesta HTTP 200.
+- **001-RF-01 (Event-Driven):** CUANDO un Administrador solicite la actualización parcial de un cliente mediante una petición a su ruta identificadora (`PATCH /api/admin/clients/{clientId}`) enviando uno o más atributos mutables válidos (`redirectUri`, `postLogoutRedirectUri`, `scopes`, `accessTokenTimeoutMinutes`, `refreshTokenTimeoutDays`), EL SISTEMA DEBE persistir las modificaciones preservando los valores preexistentes de los campos no provistos y responder con código HTTP 200 (OK) retornando la representación del cliente con su estado final.
+- **001-RF-02 (Unwanted Behavior):** SI se solicita la actualización de un cliente cuyo identificador (`clientId`) no existe en el sistema, ENTONCES EL SISTEMA DEBE rechazar la petición con código HTTP 404 (Not Found) y un mensaje descriptivo sin alterar ningún registro.
+- **001-RF-03 (Unwanted Behavior):** SI la solicitud de actualización contiene valores inválidos (tales como formato de URI malformado en `redirectUri` o `postLogoutRedirectUri`, conjunto vacío en `scopes` cuando se envíe, o valores menores o iguales a cero en los tiempos de expiración), ENTONCES EL SISTEMA DEBE rechazar la petición con código HTTP 400 (Bad Request) detallando las infracciones de validación.
+- **001-RF-04 (Unwanted Behavior):** SI un solicitante no autenticado o que carezca del rol administrativo (`ROLE_ADMIN`) intenta invocar la actualización de un cliente, ENTONCES EL SISTEMA DEBE denegar el acceso respondiendo con código HTTP 401 (Unauthorized) o 403 (Forbidden).
+- **001-RF-05 (Ubiquitous):** EL SISTEMA DEBE garantizar que el identificador de cliente (`clientId`) sea inmutable y no pueda ser alterado mediante la operación de actualización.
+- **001-RF-06 (Ubiquitous):** EL SISTEMA DEBE preservar intacto el secreto criptográfico (`clientSecret`) del cliente durante la actualización parcial y omitir dicho secreto en la respuesta HTTP 200.
 
 ## 6. Requisitos No Funcionales (Verificables)
 
-- **RNF-01 (Seguridad y Control de Acceso):** El endpoint de actualización debe residir bajo el prefijo `/api/admin/**` y aplicar autorización obligatoria de rol administrativo conforme a las reglas de `docs/constitution.md`.
-- **RNF-02 (Transaccionalidad):** La actualización de la configuración del cliente debe ejecutarse bajo una frontera transaccional atómica, revirtiendo cualquier cambio ante fallos imprevistos de persistencia.
+- **001-RNF-01 (Seguridad y Control de Acceso):** El endpoint de actualización debe residir bajo el prefijo `/api/admin/**` y aplicar autorización obligatoria de rol administrativo conforme a las reglas de `docs/constitution.md`.
+- **001-RNF-02 (Transaccionalidad):** La actualización de la configuración del cliente debe ejecutarse bajo una frontera transaccional atómica, revirtiendo cualquier cambio ante fallos imprevistos de persistencia.
 
 ## 7. Casos Límite (Edge Cases)
 
-- **CL-01 (Remoción de URI post-logout):** Si la solicitud envía explícitamente `postLogoutRedirectUri` como cadena vacía (`""`), el sistema debe remover la URI post-logout previamente asignada al cliente.
-- **CL-02 (Preservación de valores omitidos):** Cualquier campo opcional omitido o nulo en el payload de actualización debe conservar estrictamente su valor anterior sin ser reseteado a valores por defecto.
-- **CL-03 (Actualización idempotente):** Si la solicitud envía valores idénticos a los ya configurados o un objeto sin modificaciones, el sistema debe responder HTTP 200 con el estado actual sin generar inconsistencias.
+- **001-CL-01 (Remoción de URI post-logout):** Si la solicitud envía explícitamente `postLogoutRedirectUri` como cadena vacía (`""`), el sistema debe remover la URI post-logout previamente asignada al cliente.
+- **001-CL-02 (Preservación de valores omitidos):** Cualquier campo opcional omitido o nulo en el payload de actualización debe conservar estrictamente su valor anterior sin ser reseteado a valores por defecto.
+- **001-CL-03 (Actualización idempotente):** Si la solicitud envía valores idénticos a los ya configurados o un objeto sin modificaciones, el sistema debe responder HTTP 200 con el estado actual sin generar inconsistencias.
 
 ## 8. Fuera de Alcance (Out of Scope)
 
@@ -53,7 +53,7 @@ Actualmente el proveedor de identidad Hodor permite registrar nuevos clientes OA
 
 ## 9. Criterios de Finalización (Definition of Done)
 
-- Todos los requisitos (`RF-01` a `RF-06`) cuentan con verificación programática en `[PASA]` ejecutada mediante `.seb/bin/seb verify actualizar_cliente`.
+- Todos los requisitos (`001-RF-01` a `001-RF-06`) cuentan con verificación programática en `[PASA]` ejecutada mediante `.seb/bin/seb verify actualizar_cliente`.
 - Cero violaciones a `docs/constitution.md`.
 
 ## 10. Dudas Abiertas y Puntos por Clarificar

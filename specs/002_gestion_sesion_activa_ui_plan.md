@@ -16,12 +16,12 @@ El diseño implementa la detección de sesiones autenticadas, renderizado condic
 
 | Archivo / Ruta | Acción (`CREAR` / `MODIFICAR`) | Responsabilidad Técnica | Requisitos Cubiertos (`RF-XX`) |
 | :------------- | :----------------------------- | :---------------------- | :----------------------------- |
-| `src/main/java/com/calevin/hodor/infrastructure/security/config/SecurityConfig.java` | `MODIFICAR` | Exponer la ruta `/` en `permitAll()` para permitir la redirección controlada por el controlador | `RF-05`, `RF-06` |
-| `src/main/java/com/calevin/hodor/infrastructure/ui/controller/LoginController.java` | `MODIFICAR` | Mapear `/` y `/login`, inyectar `Authentication`, poblar atributos de sesión y `SavedRequest` | `RF-01`, `RF-04`, `RF-05`, `RF-06`, `RF-07` |
-| `src/main/resources/templates/login.html` | `MODIFICAR` | Tarjeta de sesión activa condicional con botón POST único de logout y botón continuar OAuth2 | `RF-01`, `RF-02`, `RF-04`, `RF-07`, `RNF-03` |
-| `src/main/resources/messages.properties` | `MODIFICAR` | Claves de internacionalización en español para los nuevos elementos de la UI | `RNF-02` |
-| `src/main/resources/messages_en.properties` | `MODIFICAR` | Claves de internacionalización en inglés para los nuevos elementos de la UI | `RNF-02` |
-| `src/test/java/com/calevin/hodor/infrastructure/ui/controller/LoginControllerTest.java` | `CREAR` | Suite de tests WebMvc aislados para validar las transiciones de estado de login, raíz y logout | `RF-01` a `RF-07`, `RNF-01` |
+| `src/main/java/com/calevin/hodor/infrastructure/security/config/SecurityConfig.java` | `MODIFICAR` | Exponer la ruta `/` en `permitAll()` para permitir la redirección controlada por el controlador | `002-RF-05`, `002-RF-06` |
+| `src/main/java/com/calevin/hodor/infrastructure/ui/controller/LoginController.java` | `MODIFICAR` | Mapear `/` y `/login`, inyectar `Authentication`, poblar atributos de sesión y `SavedRequest` | `002-RF-01`, `002-RF-04`, `002-RF-05`, `002-RF-06`, `002-RF-07` |
+| `src/main/resources/templates/login.html` | `MODIFICAR` | Tarjeta de sesión activa condicional con botón POST único de logout y botón continuar OAuth2 | `002-RF-01`, `002-RF-02`, `002-RF-04`, `002-RF-07`, `002-RNF-03` |
+| `src/main/resources/messages.properties` | `MODIFICAR` | Claves de internacionalización en español para los nuevos elementos de la UI | `002-RNF-02` |
+| `src/main/resources/messages_en.properties` | `MODIFICAR` | Claves de internacionalización en inglés para los nuevos elementos de la UI | `002-RNF-02` |
+| `src/test/java/com/calevin/hodor/infrastructure/ui/controller/LoginControllerTest.java` | `CREAR` | Suite de tests WebMvc aislados para validar las transiciones de estado de login, raíz y logout | `002-RF-01` a `002-RF-07`, `002-RNF-01` |
 
 ## 3. Contratos, Firmas y Modelo de Datos
 
@@ -67,18 +67,18 @@ public String login(
 
 ## 5. Secuencia de Tareas Atómicas (TDD: Test en Rojo -> Código -> Test en Verde)
 
-- [x] **T1. Preparación de Suite de Tests WebMvc y Casos Base (TDD)** (`RF-04`, `RF-05`, `RF-06`)
+- [x] **T1. Preparación de Suite de Tests WebMvc y Casos Base (TDD)** (`002-RF-04`, `002-RF-05`, `002-RF-06`)
   - _Archivos:_ `LoginControllerTest.java`
   - _Hecho cuando:_ Tests para acceso anónimo a `/login` y redirección desde `/` implementados.
 
-- [x] **T2. Configuración de Seguridad y Redirección de Raíz** (`RF-05`, `RF-06`)
+- [x] **T2. Configuración de Seguridad y Redirección de Raíz** (`002-RF-05`, `002-RF-06`)
   - _Archivos:_ `SecurityConfig.java`, `LoginController.java`
   - _Hecho cuando:_ Pruebas de acceso a `/` (302 redirect) pasan en verde.
 
-- [x] **T3. Lógica de Detección de Sesión Activa y Contexto OAuth2 en LoginController** (`RF-01`, `RF-04`, `RF-07`)
+- [x] **T3. Lógica de Detección de Sesión Activa y Contexto OAuth2 en LoginController** (`002-RF-01`, `002-RF-04`, `002-RF-07`)
   - _Archivos:_ `LoginController.java`, `LoginControllerTest.java`
   - _Hecho cuando:_ Pruebas de modelo (`isAuthenticated`, `username`, `continueUrl`) pasan en verde.
 
-- [x] **T4. Internacionalización y Actualización Minimalista de Vista Thymeleaf** (`RF-01`, `RF-02`, `RF-03`, `RNF-02`, `RNF-03`)
+- [x] **T4. Internacionalización y Actualización Minimalista de Vista Thymeleaf** (`002-RF-01`, `002-RF-02`, `002-RF-03`, `002-RNF-02`, `002-RNF-03`)
   - _Archivos:_ `messages.properties`, `messages_en.properties`, `login.html`, `login.css`
   - _Hecho cuando:_ La vista renderiza un único control de logout sin botones redundantes y pasa 100% de la suite.

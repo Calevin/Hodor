@@ -1,14 +1,14 @@
 {
   "tasks": {
     "001_actualizar_cliente": {
-      "spec_hash": "f3221ec4bc2ae78c4e7c4eaec97109e831994f0f7aefd15b8d0e50419d34c662",
-      "verifier_hash": "b27b500a64937a3f1c50681ed6e9bfe133238a13bf06c03bf3dd006c6ec483fa",
+      "spec_hash": "c936580a9e78fc4911a74d3731dcdeac38ce23f35fbe7ae4a5d3c60fff744923",
+      "verifier_hash": "a47ecd03bd21bb746fda064806f74f40b44a82802e61ca310619452c2db0ef02",
       "verified": true,
       "commit_hash": "a20e878"
     },
     "002_gestion_sesion_activa_ui": {
-      "spec_hash": "5b593af6f5e08418030e87e54df49403ef521a8937ffc591eb3159ce6867ef8c",
-      "verifier_hash": "3b2cc7f499f5af84f67a9a7f2a4cca5232f6cd6f1e3a7b09edc35973e9d9f872",
+      "spec_hash": "4e6aef21b57692a8fdc00906784e6fc7444b650b2091e9b3aacab7b86a8d8e5c",
+      "verifier_hash": "deac4bb9442502bd6079190a50eb67298d327bce1aef64168e6c6a633f55859b",
       "verified": true,
       "commit_hash": "a20e878"
     }
