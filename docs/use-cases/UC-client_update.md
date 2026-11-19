@@ -1,6 +1,6 @@
 # UC-CLIENT-UPDATE: Actualización de Configuración de Cliente OAuth2
 
-> **Trazabilidad SDD:** Derivado de la spec `specs/001_actualizar_cliente_spec.md` (Requisitos: `RF-01`, `RF-02`, `RF-03`, `RF-04`, `RF-05`, `RF-06`, `RNF-01`, `RNF-02`).
+> **Trazabilidad SDD:** Derivado de la spec `specs/001_actualizar_cliente_spec.md` (Requisitos: `001-RF-01`, `001-RF-02`, `001-RF-03`, `001-RF-04`, `001-RF-05`, `001-RF-06`, `001-RNF-01`, `001-RNF-02`).
 
 ## 1. Ficha de Intención
 - **ID:** `UC-CLIENT-UPDATE`
@@ -10,15 +10,15 @@
   - El solicitante debe estar autenticado en el sistema y disponer del rol administrativo `ROLE_ADMIN`.
   - El cliente OAuth2 identificado por `clientId` debe existir previamente registrado en el repositorio persistente (`RegisteredClientRepository`).
 - **Invariantes de Negocio:**
-  - **Inmutabilidad de Identidad:** El identificador del cliente (`clientId`) y su ID interno no pueden mutar bajo ninguna circunstancia (`RF-05`).
-  - **Preservación y Confidencialidad de Secretos:** El secreto criptográfico preexistente (`clientSecret`) se mantiene inalterado y queda estrictamente excluido del cuerpo de respuesta (`RF-06`).
-  - **Semántica de Actualización Parcial:** Los atributos omitidos o nulos en el cuerpo de la petición (`ClientUpdateRequest`) deben conservar sin alteración sus valores preexistentes (`CL-02`).
+  - **Inmutabilidad de Identidad:** El identificador del cliente (`clientId`) y su ID interno no pueden mutar bajo ninguna circunstancia (`001-RF-05`).
+  - **Preservación y Confidencialidad de Secretos:** El secreto criptográfico preexistente (`clientSecret`) se mantiene inalterado y queda estrictamente excluido del cuerpo de respuesta (`001-RF-06`).
+  - **Semántica de Actualización Parcial:** Los atributos omitidos o nulos en el cuerpo de la petición (`ClientUpdateRequest`) deben conservar sin alteración sus valores preexistentes (`001-CL-02`).
   - **Reglas de Validación Declarativa:**
-    - `redirectUri`: Si está presente, debe cumplir con un formato de URL HTTP o HTTPS válido (`RF-03`).
-    - `postLogoutRedirectUri`: Si está presente, debe ser una URL HTTP/HTTPS válida o una cadena vacía `""` destinada a desasociar la URI de post-logout existente (`CL-01`, `RF-03`).
-    - `scopes`: Si está presente, no puede ser una colección vacía ni contener elementos en blanco (`RF-03`).
-    - `accessTokenTimeoutMinutes` y `refreshTokenTimeoutDays`: Si están presentes, deben ser valores estrictamente positivos (`> 0`, `RF-03`).
-  - **Transaccionalidad Atómica:** La mutación debe ejecutarse dentro de una frontera transaccional (`@Transactional`), garantizando atomicidad completa ante errores inesperados (`RNF-02`).
+    - `redirectUri`: Si está presente, debe cumplir con un formato de URL HTTP o HTTPS válido (`001-RF-03`).
+    - `postLogoutRedirectUri`: Si está presente, debe ser una URL HTTP/HTTPS válida o una cadena vacía `""` destinada a desasociar la URI de post-logout existente (`001-CL-01`, `001-RF-03`).
+    - `scopes`: Si está presente, no puede ser una colección vacía ni contener elementos en blanco (`001-RF-03`).
+    - `accessTokenTimeoutMinutes` y `refreshTokenTimeoutDays`: Si están presentes, deben ser valores estrictamente positivos (`> 0`, `001-RF-03`).
+  - **Transaccionalidad Atómica:** La mutación debe ejecutarse dentro de una frontera transaccional (`@Transactional`), garantizando atomicidad completa ante errores inesperados (`001-RNF-02`).
 
 ## 2. Diagrama de Interacción del Sistema (SSD)
 
